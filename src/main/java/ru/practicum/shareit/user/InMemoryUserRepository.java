@@ -8,7 +8,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-public class InMemoryUserRepository implements UserRepository{
+public class InMemoryUserRepository implements UserRepository {
     private Map<Long, User> users = new HashMap<>();
 
     @Override

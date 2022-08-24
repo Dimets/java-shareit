@@ -6,7 +6,7 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.*;
 
 @Component
-public class InMemoryItemRepository implements ItemRepository{
+public class InMemoryItemRepository implements ItemRepository {
     private Map<Long, Item> items = new HashMap<>();
 
     @Override

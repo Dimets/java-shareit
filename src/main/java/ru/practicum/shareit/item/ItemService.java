@@ -7,9 +7,9 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import java.util.List;
 
 public interface ItemService {
-    ItemDto create (Long userId, ItemDto itemDto) throws EntityNotFoundException;
+    ItemDto create(Long userId, ItemDto itemDto) throws EntityNotFoundException;
 
-    ItemDto update (Long userId, ItemDto itemDto) throws EntityNotFoundException, UsersDoNotMatchException;
+    ItemDto update(Long userId, ItemDto itemDto) throws EntityNotFoundException, UsersDoNotMatchException;
 
     ItemDto findById(Long itemId) throws EntityNotFoundException;
 
