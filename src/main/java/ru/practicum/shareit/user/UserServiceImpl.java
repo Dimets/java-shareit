@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     void validate(UserDto userDto) throws UserEmailAlreadyExistException, EmailFormatException {
         if (userRepository.getAllUsers().stream()
                 .filter(x -> x.getEmail().equals(userDto.getEmail()))
-                .filter(x -> x.getId() != userDto.getId())
+                .filter(x -> !x.getId().equals(userDto.getId()))
                 .count() > 0) {
             throw new UserEmailAlreadyExistException(
                     String.format("Пользователь с email %s уже существует", userDto.getEmail()));
