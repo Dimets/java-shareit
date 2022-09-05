@@ -32,14 +32,14 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    ItemDto findItem(@PathVariable("itemId") Long itemId) throws EntityNotFoundException {
+    public ItemDto findItem(@PathVariable("itemId") Long itemId) throws EntityNotFoundException {
         log.info("GET /items/{}", itemId);
         return itemService.findById(itemId);
     }
 
     @GetMapping
-    List<ItemDto> findItemsByUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("GET /items/ userId={}", userId);
+    List<ItemDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("GET /items/ by userId={}", userId);
         return itemService.findByUser(userId);
     }
 
@@ -50,7 +50,7 @@ public class ItemController {
         return itemService.findByCriteria(text);
     }
 
-    @PatchMapping ("/{itemId}")
+    @PatchMapping("/{itemId}")
     ItemDto update(@PathVariable("itemId") Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId,
                    @RequestBody Map<String, Object> itemDataForUpdate)
             throws EntityNotFoundException, UsersDoNotMatchException {

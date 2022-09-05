@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EmailFormatException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserEmailAlreadyExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -21,27 +20,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto create(UserDto userDto) throws UserEmailAlreadyExistException, EmailFormatException {
+    public UserDto create(UserDto userDto) throws EmailFormatException {
         validate(userDto);
-        userDto.setId(User.getNextId());
-        return UserMapper.toUserDto(userRepository.createUser(UserMapper.toUser(userDto)));
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
     @Override
-    public UserDto update(UserDto userDto) throws EmailFormatException, UserEmailAlreadyExistException {
+    public UserDto update(UserDto userDto) throws EmailFormatException {
         validate(userDto);
-        return UserMapper.toUserDto(userRepository.updateUser(UserMapper.toUser(userDto)));
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
     @Override
     public void deleteById(Long id) {
-        userRepository.deleteUser(id);
+        userRepository.deleteById(id);
     }
 
     @Override
     public List<UserDto> findAll() {
         List<UserDto> users = new ArrayList<>();
-        for (User user : userRepository.getAllUsers()) {
+        for (User user : userRepository.findAll()) {
             users.add(UserMapper.toUserDto(user));
         }
         return users;
@@ -49,20 +47,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findById(Long id) throws EntityNotFoundException {
-        return UserMapper.toUserDto(userRepository.getUserById(id)
+        return UserMapper.toUserDto(userRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException(String.format("Пользователь с id=%d не существует", id))));
     }
 
-    void validate(UserDto userDto) throws UserEmailAlreadyExistException, EmailFormatException {
-        if (userRepository.getAllUsers().stream()
-                .filter(x -> x.getEmail().equals(userDto.getEmail()))
-                .filter(x -> !x.getId().equals(userDto.getId()))
-                .count() > 0) {
-            throw new UserEmailAlreadyExistException(
-                    String.format("Пользователь с email %s уже существует", userDto.getEmail()));
-        }
-
+    void validate(UserDto userDto) throws EmailFormatException {
         if (!userDto.getEmail().contains("@")) {
             throw new EmailFormatException(String.format("Неправильный формат email: %s", userDto.getEmail()));
         }

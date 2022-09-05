@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.ArrayList;
@@ -25,17 +24,16 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) throws EntityNotFoundException {
         userService.findById(userId);
-        itemDto.setId(Item.getNextId());
-        return ItemMapper.toItemDto(itemRepository.createItem(ItemMapper.toItem(userId, itemDto)));
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(userId, itemDto)));
     }
 
     @Override
     public ItemDto update(Long userId, ItemDto itemDto) throws EntityNotFoundException, UsersDoNotMatchException {
-        if (!userService.findById(userId).getId().equals(itemRepository.getItemById(itemDto.getId()).get().getOwner())) {
-            throw new UsersDoNotMatchException("Изменения дступны только для владельца вещи");
+        if (!userService.findById(userId).getId().equals(itemRepository.findById(itemDto.getId()).get().getOwner())) {
+            throw new UsersDoNotMatchException("Изменения доступны только для владельца вещи");
         }
-        itemRepository.updateItem(ItemMapper.toItem(userId, itemDto));
-        return ItemMapper.toItemDto(itemRepository.getItemById(itemDto.getId())
+        itemRepository.save(ItemMapper.toItem(userId, itemDto));
+        return ItemMapper.toItemDto(itemRepository.findById(itemDto.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         String.format("Вещь с id=%d не найдена", itemDto.getId())))
         );
@@ -43,27 +41,21 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto findById(Long itemId) throws EntityNotFoundException {
-        return ItemMapper.toItemDto(itemRepository.getItemById(itemId).orElseThrow(() -> new EntityNotFoundException(
+        return ItemMapper.toItemDto(itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFoundException(
                 String.format("Вещь с id=%d не найдена", itemId))));
     }
 
     @Override
     public List<ItemDto> findByUser(Long userid) {
-        List<ItemDto> items = new ArrayList<>();
-        for (Item item : itemRepository.getItemsByUser(userid)) {
-            items.add(ItemMapper.toItemDto(item));
-        }
-        return items;
+        return ItemMapper.toItemDto(itemRepository.findItemsByOwner(userid));
     }
 
     @Override
     public List<ItemDto> findByCriteria(String text) {
-        List<ItemDto> items = new ArrayList<>();
         if (text.length() > 0) {
-            for (Item item : itemRepository.getItemsByCriteria(text)) {
-                items.add(ItemMapper.toItemDto(item));
-            }
+            return ItemMapper.toItemDto(itemRepository)
+        } else {
+            return new ArrayList<>();
         }
-        return items;
     }
 }
