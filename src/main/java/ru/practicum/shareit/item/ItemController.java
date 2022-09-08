@@ -4,15 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
+import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
-/**
- * // TODO .
- */
+
 @RestController
 @RequestMapping("/items")
 @Slf4j
@@ -32,13 +31,15 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findItem(@PathVariable("itemId") Long itemId) throws EntityNotFoundException {
-        log.info("GET /items/{}", itemId);
-        return itemService.findById(itemId);
+    public ItemBookingDto findItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId)
+            throws EntityNotFoundException {
+        log.info("GET /items/{} userId={}", itemId, userId);
+        ItemBookingDto itemBookingDto = itemService.findById(userId, itemId);
+        return itemBookingDto;
     }
 
     @GetMapping
-    List<ItemDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    List<ItemBookingDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId) throws EntityNotFoundException {
         log.info("GET /items/ by userId={}", userId);
         return itemService.findByUser(userId);
     }

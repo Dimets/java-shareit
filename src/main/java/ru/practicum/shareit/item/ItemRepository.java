@@ -5,13 +5,11 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
+    @Query(value = "select * from items where is_available = true " +
+            "and (lower(description) like %?1% or lower(name) like %?1%)", nativeQuery = true)
+    List<Item> findItemsByCriteria(String text);
 
-    @Query(value = "select it.id, it.name, it.description, it.is_available, it.owner_id, it.request_id " +
-            "from items as it where it.owner_id = ?1", nativeQuery = true)
-    List<Item> findItemsByOwner(Long userId);
-
-    @Query(value = "select * from items where " )
+    List<Item> findAllByOwner_Id(Long ownerId);
 }
