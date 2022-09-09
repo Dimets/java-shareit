@@ -152,25 +152,25 @@ public class BookingServiceImpl implements BookingService {
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository.findAllByItem_Owner_Id(userId));
                 break;
             case "CURRENT":
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository.
-                        findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(),
+                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                        .findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(),
                                 LocalDateTime.now()));
                 break;
             case "PAST":
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository.
-                        findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now()));
+                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                        .findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now()));
                 break;
             case "FUTURE":
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository.
-                        findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now()));
+                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                        .findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now()));
                 break;
             case "WAITING":
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository.
-                        findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING));
+                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                        .findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING));
                 break;
             case "REJECTED":
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository.
-                        findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED));
+                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                        .findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED));
                 break;
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);

@@ -11,14 +11,14 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByBooker_Id(Long bookerId);
 
-    List<Booking> findAllByBooker_IdAndStatus(Long booker_id, BookingStatus status);
+    List<Booking> findAllByBooker_IdAndStatus(Long bookerId, BookingStatus status);
 
-    List<Booking> findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(Long booker_id, LocalDateTime nowStart,
+    List<Booking> findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(Long bookerId, LocalDateTime nowStart,
                                                                   LocalDateTime nowEnd);
 
-    List<Booking> findAllByBooker_IdAndEndIsBefore(Long booker_id, LocalDateTime now);
+    List<Booking> findAllByBooker_IdAndEndIsBefore(Long bookerId, LocalDateTime now);
 
-    List<Booking> findAllByBooker_IdAndStartIsAfter(Long booker_id, LocalDateTime now);
+    List<Booking> findAllByBooker_IdAndStartIsAfter(Long bookerId, LocalDateTime now);
 
     List<Booking> findAllByItem_Owner_Id(Long ownerId);
 
