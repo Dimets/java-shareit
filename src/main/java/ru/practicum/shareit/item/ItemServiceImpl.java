@@ -4,11 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
+import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
-import ru.practicum.shareit.item.dto.ItemBookingDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.ItemBookingMapper;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemResponseMapper;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -21,13 +25,16 @@ import java.util.List;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final CommentRepository commentRepository;
     private final UserService userService;
     private final BookingService bookingService;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserService userService, BookingService bookingService) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserService userService, BookingService bookingService,
+                           CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
         this.userService = userService;
         this.bookingService = bookingService;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -63,10 +70,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemBookingDto findById(Long userId, Long itemId) throws EntityNotFoundException {
+    public ItemResponseDto findById(Long userId, Long itemId) throws EntityNotFoundException {
         ItemDto itemDto = findById(itemId);
         BookingUserDto lastBooking;
         BookingUserDto nextBooking;
+        List<CommentDto> commentDtoList =  CommentMapper.toCommentDto(commentRepository
+                .findAllByItem_Id(itemDto.getId()));
 
 
         if (userId.equals(itemDto.getOwner())) {
@@ -77,25 +86,28 @@ public class ItemServiceImpl implements ItemService {
             nextBooking = null;
         }
 
-        return ItemBookingMapper.toItemBookingDto(itemDto, lastBooking, nextBooking);
+        return ItemResponseMapper.toItemResponseDto(itemDto, lastBooking, nextBooking, commentDtoList);
     }
 
     @Override
-    public List<ItemBookingDto> findByUser(Long userId) throws EntityNotFoundException {
-        List<ItemBookingDto> itemBookingDtos = new ArrayList<>();
+    public List<ItemResponseDto> findByUser(Long userId) throws EntityNotFoundException {
+        List<ItemResponseDto> itemResponseDtos = new ArrayList<>();
         BookingUserDto lastBooking;
         BookingUserDto nextBooking;
+        List<CommentDto> commentDtoList;
 
         List<ItemDto> itemDtoList = ItemMapper.toItemDto(itemRepository.findAllByOwner_Id(userId));
 
         for (ItemDto itemDto : itemDtoList) {
             lastBooking = bookingService.findLastByItem(itemDto.getId());
             nextBooking = bookingService.findNextByItem(itemDto.getId());
-            itemBookingDtos.add(ItemBookingMapper.toItemBookingDto(itemDto, lastBooking, nextBooking));
+            commentDtoList = CommentMapper.toCommentDto(commentRepository.findAllByItem_Id(itemDto.getId()));
+            itemResponseDtos.add(ItemResponseMapper.toItemResponseDto(itemDto, lastBooking,
+                    nextBooking, commentDtoList));
         }
 
-        Collections.sort(itemBookingDtos);
-        return itemBookingDtos;
+        Collections.sort(itemResponseDtos);
+        return itemResponseDtos;
     }
 
     @Override
@@ -104,6 +116,22 @@ public class ItemServiceImpl implements ItemService {
             return ItemMapper.toItemDto(itemRepository.findItemsByCriteria(text.toLowerCase()));
         } else {
             return new ArrayList<>();
+        }
+    }
+
+    @Override
+    @Transactional
+    public CommentDto create(Long userId, Long itemId, CommentDto commentDto)
+            throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException {
+
+        if (bookingService.findAllByBooker(userId, "CURRENT").size() > 0 ||
+                bookingService.findAllByBooker(userId, "PAST").size()  > 0) {
+            UserDto userDto = userService.findById(userId);
+            Item item = itemRepository.findById(itemId).get();
+            return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(commentDto, userDto, item)));
+        } else {
+            throw new CommentValidationException("Оставить комментарий к вещи можно только," +
+                    " если пользователь ее бронировал");
         }
     }
 }

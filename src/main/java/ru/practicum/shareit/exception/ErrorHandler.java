@@ -57,4 +57,14 @@ public class ErrorHandler {
     }
 
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUserNotHaveBookingException(final CommentValidationException e) {
+        log.error(e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+
+
+
 }

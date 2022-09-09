@@ -2,12 +2,16 @@ package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
-import ru.practicum.shareit.item.dto.ItemBookingDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -31,15 +35,15 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemBookingDto findItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId)
+    public ItemResponseDto findItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId)
             throws EntityNotFoundException {
         log.info("GET /items/{} userId={}", itemId, userId);
-        ItemBookingDto itemBookingDto = itemService.findById(userId, itemId);
-        return itemBookingDto;
+        ItemResponseDto itemResponseDto = itemService.findById(userId, itemId);
+        return itemResponseDto;
     }
 
     @GetMapping
-    List<ItemBookingDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId) throws EntityNotFoundException {
+    List<ItemResponseDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId) throws EntityNotFoundException {
         log.info("GET /items/ by userId={}", userId);
         return itemService.findByUser(userId);
     }
@@ -76,4 +80,13 @@ public class ItemController {
         return itemService.update(userId, itemDtoForUpdate);
     }
 
+    @PostMapping("/{itemId}/comment")
+    CommentDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId,
+                      @Valid @RequestBody CommentDto commentDto)
+            throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException {
+            log.info("POST /items/{itemId}/comment userId={}", itemId, userId);
+            log.debug("POST /items/{itemId} userId={} commentDto={}", itemId, userId, commentDto);
+            commentDto.setCreate(LocalDateTime.now());
+        return itemService.create(userId, itemId, commentDto);
+    }
 }

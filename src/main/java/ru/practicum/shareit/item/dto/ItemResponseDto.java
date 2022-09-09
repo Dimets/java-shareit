@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
-public class ItemBookingDto implements Comparable<ItemBookingDto> {
+public class ItemResponseDto implements Comparable<ItemResponseDto> {
     private Long id;
 
     private String name;
@@ -19,8 +21,10 @@ public class ItemBookingDto implements Comparable<ItemBookingDto> {
 
     private BookingUserDto nextBooking;
 
+    private List<CommentDto> comments;
+
     @Override
-    public int compareTo(ItemBookingDto o) {
+    public int compareTo(ItemResponseDto o) {
         if (this.getId() < o.getId()) {
             return -1;
         }
