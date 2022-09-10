@@ -41,7 +41,7 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public BookingExtDto getById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable("bookingId") Long bookingId)
-            throws EntityNotFoundException, UsersDoNotMatchException {
+            throws EntityNotFoundException {
         log.info("GET /bookings/{bookingId}", bookingId);
         return bookingService.findById(userId, bookingId);
     }

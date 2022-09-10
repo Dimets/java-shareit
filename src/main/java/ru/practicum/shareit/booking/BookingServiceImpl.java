@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -104,37 +105,44 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingExtDto> findAllByBooker(Long userId, String state)
             throws EntityNotFoundException, UnsupportedStatusException {
-        userService.findById(userId);
-        List<BookingExtDto> bookingExtDtoList;
 
-        switch (state) {
-            case "ALL":
+        userService.findById(userId);
+
+        List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
+        BookingStatus status;
+
+        try {
+            status = BookingStatus.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new UnsupportedStatusException("Unknown state: " + state);
+        }
+
+        switch (status) {
+            case ALL :
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBooker_Id(userId));
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(),
                                 LocalDateTime.now()));
                 break;
-            case "PAST":
+            case PAST:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now()));
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now()));
                 break;
-            case "WAITING":
+            case WAITING:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING));
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED));
                 break;
-            default:
-                throw new UnsupportedStatusException("Unknown state: " + state);
         }
 
         Collections.sort(bookingExtDtoList);
@@ -145,30 +153,39 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingExtDto> findAllByOwner(Long userId, String state)
             throws EntityNotFoundException, UnsupportedStatusException {
         userService.findById(userId);
-        List<BookingExtDto> bookingExtDtoList;
 
-        switch (state) {
-            case "ALL":
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository.findAllByItem_Owner_Id(userId));
+        List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
+        BookingStatus status;
+
+        try {
+            status = BookingStatus.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new UnsupportedStatusException("Unknown state: " + state);
+        }
+
+        switch (status) {
+            case ALL:
+                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                        .findAllByItem_Owner_Id(userId));
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(),
                                 LocalDateTime.now()));
                 break;
-            case "PAST":
+            case PAST:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now()));
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now()));
                 break;
-            case "WAITING":
+            case WAITING:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING));
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED));
                 break;
@@ -181,7 +198,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingUserDto findLastByItem(Long itemId) throws EntityNotFoundException {
+    public BookingUserDto findLastByItem(Long itemId) {
         if (bookingRepository.findLastBookingByItem_Id(itemId, LocalDateTime.now()).isPresent()) {
             Booking booking = bookingRepository.findLastBookingByItem_Id(itemId, LocalDateTime.now()).get();
             return BookingUserMapper.toBookingUserDto(booking, booking.getBooker().getId());
@@ -192,7 +209,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public BookingUserDto findNextByItem(Long itemId) throws EntityNotFoundException {
+    public BookingUserDto findNextByItem(Long itemId) {
         if (bookingRepository.findNextBookingByItem_Id(itemId, LocalDateTime.now()).isPresent()) {
             Booking booking = bookingRepository.findNextBookingByItem_Id(itemId, LocalDateTime.now()).get();
             return BookingUserMapper.toBookingUserDto(booking, booking.getBooker().getId());

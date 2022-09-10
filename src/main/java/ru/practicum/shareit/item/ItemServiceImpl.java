@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -124,8 +125,8 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto create(Long userId, Long itemId, CommentDto commentDto)
             throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException {
 
-        if (bookingService.findAllByBooker(userId, "CURRENT").size() > 0 ||
-                bookingService.findAllByBooker(userId, "PAST").size()  > 0) {
+        if (bookingService.findAllByBooker(userId, BookingStatus.CURRENT.toString()).size() > 0 ||
+                bookingService.findAllByBooker(userId, BookingStatus.PAST.toString()).size()  > 0) {
             UserDto userDto = userService.findById(userId);
             Item item = itemRepository.findById(itemId).get();
             return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(commentDto, userDto, item)));
