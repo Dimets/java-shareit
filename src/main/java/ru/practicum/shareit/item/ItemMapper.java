@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.context.annotation.Bean;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemMapper {
+    @Bean
     public static ItemDto toItemDto(Item item) {
         return new ItemDto(
                 item.getId(),
@@ -19,6 +21,7 @@ public class ItemMapper {
         );
     }
 
+    @Bean
     public static List<ItemDto> toItemDto(Iterable<Item> items) {
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (Item item : items) {
@@ -27,6 +30,7 @@ public class ItemMapper {
         return itemDtoList;
     }
 
+    @Bean
     public static Item toItem(ItemDto itemDto, UserDto userDto) {
         Item item = new Item();
 

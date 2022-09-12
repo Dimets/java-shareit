@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.context.annotation.Bean;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.ItemMapper;
@@ -11,11 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingMapper {
+    @Bean
     public static BookingDto toBookingDto(Booking booking) {
         return new BookingDto(booking.getId(), booking.getStart(), booking.getEnd(), booking.getItem().getId(),
                 booking.getBooker().getId(), booking.getStatus());
     }
 
+    @Bean
     public static List<BookingDto> toBookingDto(List<Booking> bookings) {
         List<BookingDto> bookingDtoList = new ArrayList<>();
         for (Booking booking : bookings) {
@@ -24,6 +27,7 @@ public class BookingMapper {
         return bookingDtoList;
     }
 
+    @Bean
     public static Booking toBooking(BookingDto bookingDto, UserDto userDto, ItemDto itemDto) {
         Booking booking = new Booking();
 

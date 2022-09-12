@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
@@ -11,5 +12,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "and (lower(description) like %?1% or lower(name) like %?1%)", nativeQuery = true)
     List<Item> findItemsByCriteria(String text);
 
-    List<Item> findAllByOwner_Id(Long ownerId);
+    List<Item> findAllByOwner(User owner);
 }

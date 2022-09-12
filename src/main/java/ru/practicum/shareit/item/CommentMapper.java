@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.context.annotation.Bean;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -10,12 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommentMapper {
+    @Bean
     public static CommentDto toCommentDto(Comment comment) {
         return new CommentDto(comment.getId(), comment.getText(),
                 comment.getItem().getId(), comment.getAuthor().getName(),
                 comment.getCreate());
     }
 
+    @Bean
     public static List<CommentDto> toCommentDto(List<Comment> comments) {
         List<CommentDto> commentDtoList = new ArrayList<>();
         for (Comment comment :comments) {
@@ -25,6 +28,7 @@ public class CommentMapper {
         return commentDtoList;
     }
 
+    @Bean
     public static Comment toComment(CommentDto commentDto, UserDto userDto, Item item) {
         Comment comment = new Comment();
 

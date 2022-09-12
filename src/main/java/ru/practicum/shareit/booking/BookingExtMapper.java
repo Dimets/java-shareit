@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.context.annotation.Bean;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingExtDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingExtMapper {
+    @Bean
     public static BookingExtDto toBookingExtMapper(BookingDto bookingDto, UserDto userDto, ItemDto itemDto) {
         UserDto newUserDto = new UserDto();
         newUserDto.setId(userDto.getId());
@@ -24,6 +26,7 @@ public class BookingExtMapper {
                 bookingDto.getStart(), bookingDto.getEnd());
     }
 
+@Bean
     public static List<BookingExtDto> toBookingExtMapper(List<Booking> bookings) {
         List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
 

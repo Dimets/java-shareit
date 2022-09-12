@@ -14,8 +14,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemResponseMapper;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -92,12 +94,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemResponseDto> findByUser(Long userId) throws EntityNotFoundException {
+        User user = UserMapper.toUser(userService.findById(userId));
+
         List<ItemResponseDto> itemResponseDtos = new ArrayList<>();
         BookingUserDto lastBooking;
         BookingUserDto nextBooking;
         List<CommentDto> commentDtoList;
 
-        List<ItemDto> itemDtoList = ItemMapper.toItemDto(itemRepository.findAllByOwner_Id(userId));
+        List<ItemDto> itemDtoList = ItemMapper.toItemDto(itemRepository.findAllByOwner(user));
 
         for (ItemDto itemDto : itemDtoList) {
             lastBooking = bookingService.findLastByItem(itemDto.getId());
