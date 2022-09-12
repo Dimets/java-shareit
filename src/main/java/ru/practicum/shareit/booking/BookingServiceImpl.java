@@ -29,12 +29,23 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemService itemService;
+    private final BookingMapper bookingMapper;
+    private final BookingExtMapper bookingExtMapper;
+    private final UserMapper userMapper;
+    private final ItemMapper itemMapper;
+
 
     @Lazy
-    public BookingServiceImpl(BookingRepository bookingRepository, UserService userService, ItemService itemService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, UserService userService, ItemService itemService,
+                              BookingMapper bookingMapper, BookingExtMapper bookingExtMapper, UserMapper userMapper,
+                              ItemMapper itemMapper) {
         this.bookingRepository = bookingRepository;
         this.userService = userService;
         this.itemService = itemService;
+        this.bookingMapper = bookingMapper;
+        this.bookingExtMapper = bookingExtMapper;
+        this.userMapper = userMapper;
+        this.itemMapper = itemMapper;
     }
 
     @Override
@@ -54,8 +65,8 @@ public class BookingServiceImpl implements BookingService {
         bookingDto.setBooker(userId);
         bookingDto.setStatus(BookingStatus.WAITING);
 
-        return BookingMapper.toBookingDto(
-                bookingRepository.save(BookingMapper.toBooking(bookingDto, userDto, itemDto)));
+        return bookingMapper.toBookingDto(
+                bookingRepository.save(bookingMapper.toBooking(bookingDto, userDto, itemDto)));
     }
 
     @Override
@@ -80,14 +91,14 @@ public class BookingServiceImpl implements BookingService {
             bookingDto.setStatus(BookingStatus.REJECTED);
         }
 
-        bookingRepository.save(BookingMapper.toBooking(bookingDto, userDto, itemDto));
+        bookingRepository.save(bookingMapper.toBooking(bookingDto, userDto, itemDto));
 
-        return BookingExtMapper.toBookingExtMapper(bookingDto, userDto, itemDto);
+        return bookingExtMapper.toBookingExtMapper(bookingDto, userDto, itemDto);
     }
 
     @Override
     public BookingDto findById(Long bookingId) throws EntityNotFoundException {
-        return BookingMapper.toBookingDto(bookingRepository.findById(bookingId).orElseThrow(() ->
+        return bookingMapper.toBookingDto(bookingRepository.findById(bookingId).orElseThrow(() ->
                 new EntityNotFoundException(String.format("Бронирование с id=%d не найдено", bookingId))));
     }
 
@@ -99,7 +110,7 @@ public class BookingServiceImpl implements BookingService {
         UserDto userDto = userService.findById(bookingDto.getBooker());
 
         if (bookingDto.getBooker().equals(userId) || itemDto.getOwner().equals(userId)) {
-            return BookingExtMapper.toBookingExtMapper(bookingDto, userDto, itemDto);
+            return bookingExtMapper.toBookingExtMapper(bookingDto, userDto, itemDto);
         } else {
             throw new EntityNotFoundException("Просматривать бронирование может только владелец вещи " +
                     "или создатель брони");
@@ -110,7 +121,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingExtDto> findAllByBooker(Long userId, String state)
             throws EntityNotFoundException, UnsupportedStatusException {
 
-        User user = UserMapper.toUser(userService.findById(userId));
+        User user = userMapper.toUser(userService.findById(userId));
 
         List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
         BookingStatus status;
@@ -123,28 +134,28 @@ public class BookingServiceImpl implements BookingService {
 
         switch (status) {
             case ALL :
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBooker(user));
                 break;
             case CURRENT:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfter(user, LocalDateTime.now(),
                                 LocalDateTime.now()));
                 break;
             case PAST:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBookerAndEndIsBefore(user, LocalDateTime.now()));
                 break;
             case FUTURE:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBookerAndStartIsAfter(user, LocalDateTime.now()));
                 break;
             case WAITING:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBookerAndStatus(user, BookingStatus.WAITING));
                 break;
             case REJECTED:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBookerAndStatus(user, BookingStatus.REJECTED));
                 break;
         }
@@ -157,7 +168,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingExtDto> findAllByOwner(Long userId, String state)
             throws EntityNotFoundException, UnsupportedStatusException {
 
-        User user = UserMapper.toUser(userService.findById(userId));
+        User user = userMapper.toUser(userService.findById(userId));
 
         List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
         BookingStatus status;
@@ -170,28 +181,28 @@ public class BookingServiceImpl implements BookingService {
 
         switch (status) {
             case ALL:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItemOwner(user));
                 break;
             case CURRENT:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItemOwnerAndStartIsBeforeAndEndIsAfter(user, LocalDateTime.now(),
                                 LocalDateTime.now()));
                 break;
             case PAST:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItemOwnerAndEndIsBefore(user, LocalDateTime.now()));
                 break;
             case FUTURE:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItemOwnerAndStartIsAfter(user, LocalDateTime.now()));
                 break;
             case WAITING:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItemOwnerAndStatus(user, BookingStatus.WAITING));
                 break;
             case REJECTED:
-                bookingExtDtoList = BookingExtMapper.toBookingExtMapper(bookingRepository
+                bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItemOwnerAndStatus(user, BookingStatus.REJECTED));
                 break;
             default:
@@ -205,7 +216,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingUserDto findLastByItem(Long itemId) throws EntityNotFoundException {
         UserDto userDto = userService.findById(itemService.findById(itemId).getOwner());
-        Item item = ItemMapper.toItem(itemService.findById(itemId), userDto);
+        Item item = itemMapper.toItem(itemService.findById(itemId), userDto);
 
         if (bookingRepository.findLastBookingByItem(item, LocalDateTime.now()).isPresent()) {
             Booking booking = bookingRepository.findLastBookingByItem(item, LocalDateTime.now()).get();
@@ -219,7 +230,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingUserDto findNextByItem(Long itemId) throws EntityNotFoundException {
         UserDto userDto = userService.findById(itemService.findById(itemId).getOwner());
-        Item item = ItemMapper.toItem(itemService.findById(itemId), userDto);
+        Item item = itemMapper.toItem(itemService.findById(itemId), userDto);
 
         if (bookingRepository.findNextBookingByItem(item, LocalDateTime.now()).isPresent()) {
             Booking booking = bookingRepository.findNextBookingByItem(item, LocalDateTime.now()).get();

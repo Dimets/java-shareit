@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -10,16 +11,21 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CommentMapper {
-    @Bean
-    public static CommentDto toCommentDto(Comment comment) {
+    private final UserMapper userMapper;
+
+    public CommentMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    public CommentDto toCommentDto(Comment comment) {
         return new CommentDto(comment.getId(), comment.getText(),
                 comment.getItem().getId(), comment.getAuthor().getName(),
                 comment.getCreate());
     }
 
-    @Bean
-    public static List<CommentDto> toCommentDto(List<Comment> comments) {
+    public List<CommentDto> toCommentDto(List<Comment> comments) {
         List<CommentDto> commentDtoList = new ArrayList<>();
         for (Comment comment :comments) {
             commentDtoList.add(toCommentDto(comment));
@@ -28,13 +34,12 @@ public class CommentMapper {
         return commentDtoList;
     }
 
-    @Bean
-    public static Comment toComment(CommentDto commentDto, UserDto userDto, Item item) {
+    public Comment toComment(CommentDto commentDto, UserDto userDto, Item item) {
         Comment comment = new Comment();
 
         comment.setId(commentDto.getId());
         comment.setText(commentDto.getText());
-        comment.setAuthor(UserMapper.toUser(userDto));
+        comment.setAuthor(userMapper.toUser(userDto));
         comment.setItem(item);
         comment.setCreate(commentDto.getCreate());
 

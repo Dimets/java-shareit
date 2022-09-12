@@ -15,23 +15,25 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
     @Transactional
     public UserDto create(UserDto userDto) throws EmailFormatException {
         validate(userDto);
-        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
+        return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
     }
 
     @Override
     @Transactional
     public UserDto update(UserDto userDto) throws EmailFormatException {
         validate(userDto);
-        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
+        return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
     }
 
     @Override
@@ -44,14 +46,14 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> findAll() {
         List<UserDto> users = new ArrayList<>();
         for (User user : userRepository.findAll()) {
-            users.add(UserMapper.toUserDto(user));
+            users.add(userMapper.toUserDto(user));
         }
         return users;
     }
 
     @Override
     public UserDto findById(Long id) throws EntityNotFoundException {
-        return UserMapper.toUserDto(userRepository.findById(id)
+        return userMapper.toUserDto(userRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException(String.format("Пользователь с id=%d не существует", id))));
     }

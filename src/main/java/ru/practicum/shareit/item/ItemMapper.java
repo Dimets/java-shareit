@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserMapper;
@@ -9,9 +10,15 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ItemMapper {
-    @Bean
-    public static ItemDto toItemDto(Item item) {
+    private final UserMapper userMapper;
+
+    public ItemMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    public  ItemDto toItemDto(Item item) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
@@ -21,8 +28,7 @@ public class ItemMapper {
         );
     }
 
-    @Bean
-    public static List<ItemDto> toItemDto(Iterable<Item> items) {
+    public List<ItemDto> toItemDto(Iterable<Item> items) {
         List<ItemDto> itemDtoList = new ArrayList<>();
         for (Item item : items) {
             itemDtoList.add(toItemDto(item));
@@ -30,8 +36,7 @@ public class ItemMapper {
         return itemDtoList;
     }
 
-    @Bean
-    public static Item toItem(ItemDto itemDto, UserDto userDto) {
+    public Item toItem(ItemDto itemDto, UserDto userDto) {
         Item item = new Item();
 
         if (itemDto.getId() != null) {
@@ -41,7 +46,7 @@ public class ItemMapper {
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());
         item.setAvailable(itemDto.getAvailable());
-        item.setOwner(UserMapper.toUser(userDto));
+        item.setOwner(userMapper.toUser(userDto));
 
         return item;
     }
