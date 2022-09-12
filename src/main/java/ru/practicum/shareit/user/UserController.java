@@ -4,16 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.EmailFormatException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserEmailAlreadyExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
-/**
- * // TODO .
- */
 @RestController
 @RequestMapping(path = "/users")
 @Slf4j
@@ -25,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto create(@Valid @RequestBody UserDto userDto) throws UserEmailAlreadyExistException, EmailFormatException {
+    public UserDto create(@Valid @RequestBody UserDto userDto) throws EmailFormatException {
         log.info("POST /users");
         log.debug("POST /users {}", userDto);
         return userService.create(userDto);
@@ -45,7 +41,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto update(@PathVariable("userId") Long userId, @RequestBody Map<String, Object> userDataForUpdate)
-            throws EmailFormatException, UserEmailAlreadyExistException, EntityNotFoundException {
+            throws EmailFormatException, EntityNotFoundException {
         log.info("PATCH /users/{}", userId);
         log.debug("PATCH /users/{} body={}", userId, userDataForUpdate);
 
