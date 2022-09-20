@@ -7,6 +7,8 @@ import ru.practicum.shareit.exception.UsersDoNotMatchException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
+import ru.practicum.shareit.requests.model.ItemRequest;
 
 import java.util.List;
 
@@ -23,5 +25,8 @@ public interface ItemService {
 
     List<ItemDto> findByCriteria(String text);
 
-    CommentDto create(Long userId, Long itemId, CommentDto commentDto) throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException;
+    List<ItemDto> findByRequest(ItemRequest itemRequest);
+
+    CommentDto create(Long userId, Long itemId, CommentDto commentDto) throws EntityNotFoundException,
+            UnsupportedStatusException, CommentValidationException;
 }

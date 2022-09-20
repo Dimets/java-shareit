@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;

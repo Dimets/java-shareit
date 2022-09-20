@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
@@ -13,7 +14,10 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemResponseMapper;
+import ru.practicum.shareit.requests.ItemRequestMapper;
+import ru.practicum.shareit.requests.ItemRequestService;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
+import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -26,6 +30,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
@@ -34,23 +39,18 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
     private final UserMapper userMapper;
-
-    public ItemServiceImpl(ItemRepository itemRepository, UserService userService, BookingService bookingService,
-                           CommentRepository commentRepository, ItemMapper itemMapper, CommentMapper commentMapper,
-                           UserMapper userMapper) {
-        this.itemRepository = itemRepository;
-        this.userService = userService;
-        this.bookingService = bookingService;
-        this.commentRepository = commentRepository;
-        this.itemMapper = itemMapper;
-        this.commentMapper = commentMapper;
-        this.userMapper = userMapper;
-    }
+    private final ItemRequestService itemRequestService;
 
     @Override
     @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) throws EntityNotFoundException {
         UserDto userDto = userService.findById(userId);
+
+        if (itemDto.getRequestId() != null) {
+            ItemRequestDto itemRequestDto = itemRequestService.findById(itemDto.getRequestId());
+            return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, userDto, itemRequestDto)));
+        }
+
         return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, userDto)));
     }
 
@@ -58,9 +58,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto update(Long userId, ItemDto itemDto) throws EntityNotFoundException, UsersDoNotMatchException {
         UserDto userDto = userService.findById(userId);
-
-        System.out.println("userId=" + userId);
-        System.out.println("owner=" + itemRepository.findById(itemDto.getId()).get().getOwner());
 
         if (!userId.equals(itemRepository.findById(itemDto.getId()).get().getOwner().getId())) {
             throw new UsersDoNotMatchException("Изменения доступны только для владельца вещи");
@@ -146,5 +143,10 @@ public class ItemServiceImpl implements ItemService {
             throw new CommentValidationException("Оставить комментарий к вещи можно только," +
                     " если пользователь ее бронировал");
         }
+    }
+
+    @Override
+    public List<ItemDto> findByRequest(ItemRequest itemRequest) {
+        return itemMapper.toItemDto(itemRepository.findAllByItemRequest(itemRequest));
     }
 }
