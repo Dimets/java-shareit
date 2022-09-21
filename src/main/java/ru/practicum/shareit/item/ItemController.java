@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -19,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/items")
 @Slf4j
+@Validated
 public class ItemController {
     private final ItemService itemService;
 

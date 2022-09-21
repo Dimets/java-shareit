@@ -1,8 +1,7 @@
 package ru.practicum.shareit.requests;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
@@ -16,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/requests")
+@Validated
 @Slf4j
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
@@ -57,16 +57,10 @@ public class ItemRequestController {
     @GetMapping("/all")
     public List<ItemRequestDto> findAllItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                     @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                                    @RequestParam(defaultValue = "1") @Min(1) Integer size)
+                                                    @RequestParam(defaultValue = "0x7fffffff") @Min(1) Integer size)
             throws EntityNotFoundException {
         log.info("GET /requests/all?from={}&size={} userId={}", from, size, userId);
 
-
-        Pageable pageable = PageRequest.of(from, size);
-
-        userService.findById(userId);
-
         return itemRequestService.findAllOther(userId, from , size);
     }
-
 }

@@ -17,10 +17,10 @@ public interface BookingService {
 
     BookingExtDto findById(Long userId, Long bookingId) throws EntityNotFoundException;
 
-    List<BookingExtDto> findAllByBooker(Long userId, String state)
+    List<BookingExtDto> findAllByBooker(Long userId, String state, Integer from, Integer size)
             throws EntityNotFoundException, UnsupportedStatusException;
 
-    List<BookingExtDto> findAllByOwner(Long userId, String state)
+    List<BookingExtDto> findAllByOwner(Long userId, String state, Integer from, Integer size)
             throws EntityNotFoundException, UnsupportedStatusException;
 
     BookingExtDto approve(Long bookingId, Long userId, Boolean status)

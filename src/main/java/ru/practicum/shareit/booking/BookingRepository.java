@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
@@ -11,27 +13,27 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findAllByBooker(User booker);
+    Page<Booking> findAllByBooker(User booker, Pageable pageable);
 
-    List<Booking> findAllByBookerAndStatus(User booker, BookingStatus status);
+    Page<Booking> findAllByBookerAndStatus(User booker, BookingStatus status, Pageable pageable);
 
-    List<Booking> findAllByBookerAndStartIsBeforeAndEndIsAfter(User booker, LocalDateTime nowStart,
-                                                                  LocalDateTime nowEnd);
+    Page<Booking> findAllByBookerAndStartIsBeforeAndEndIsAfter(User booker, LocalDateTime nowStart,
+                                                                  LocalDateTime nowEnd, Pageable pageable);
 
-    List<Booking> findAllByBookerAndEndIsBefore(User booker, LocalDateTime now);
+    Page<Booking> findAllByBookerAndEndIsBefore(User booker, LocalDateTime now, Pageable pageable);
 
-    List<Booking> findAllByBookerAndStartIsAfter(User booker, LocalDateTime now);
+    Page<Booking> findAllByBookerAndStartIsAfter(User booker, LocalDateTime now, Pageable pageable);
 
-    List<Booking> findAllByItemOwner(User owner);
+    Page<Booking> findAllByItemOwner(User owner, Pageable pageable);
 
-    List<Booking> findAllByItemOwnerAndStatus(User owner, BookingStatus status);
+    Page<Booking> findAllByItemOwnerAndStatus(User owner, BookingStatus status, Pageable pageable);
 
-    List<Booking> findAllByItemOwnerAndStartIsBeforeAndEndIsAfter(User owner, LocalDateTime nowStart,
-                                                                      LocalDateTime nowEnd);
+    Page<Booking> findAllByItemOwnerAndStartIsBeforeAndEndIsAfter(User owner, LocalDateTime nowStart,
+                                                                      LocalDateTime nowEnd, Pageable pageable);
 
-    List<Booking> findAllByItemOwnerAndEndIsBefore(User owner, LocalDateTime now);
+    Page<Booking> findAllByItemOwnerAndEndIsBefore(User owner, LocalDateTime now, Pageable pageable);
 
-    List<Booking> findAllByItemOwnerAndStartIsAfter(User owner, LocalDateTime now);
+    Page<Booking> findAllByItemOwnerAndStartIsAfter(User owner, LocalDateTime now, Pageable pageable);
 
     @Query(value = "select * from bookings where item_id = ?1 and end_dt < ?2 order by  end_dt desc limit 1",
             nativeQuery = true)

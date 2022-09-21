@@ -14,4 +14,5 @@ public interface ItemRequestService {
     List<ItemRequestDto> findAll(Long userId) throws EntityNotFoundException;
 
     List<ItemRequestDto> findAllOther(Long userId, Integer from, Integer size) throws EntityNotFoundException;
+
 }

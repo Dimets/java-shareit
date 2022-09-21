@@ -1,6 +1,10 @@
 package ru.practicum.shareit.requests;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.ItemMapper;
@@ -12,10 +16,13 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ItemRequestServiceImpl implements ItemRequestService{
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
@@ -62,16 +69,27 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
     @Override
     public List<ItemRequestDto> findAllOther(Long userId, Integer from, Integer size) throws EntityNotFoundException {
-        User user = userMapper.toUser(userService.findById(userId));
+        if (size !=Integer.MAX_VALUE) {
 
-        List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toItemRequestDto(itemRequestRepository.
-                findAllByUserNotOrderByCreatedDesc(user));
+            User user = userMapper.toUser(userService.findById(userId));
 
-        for (ItemRequestDto itemRequestDto : itemRequestDtos) {
-            itemRequestDto.setItems(itemMapper.toItemDto(itemRepository.findAllByItemRequest(
-                    itemRequestMapper.toItemRequest(itemRequestDto, userMapper.toUserDto(user)))));
+            Sort newestFirst = Sort.by(Sort.Direction.DESC, "created");
+
+            Pageable pageable = PageRequest.of(from / size, size, newestFirst);
+
+            List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toItemRequestDto(itemRequestRepository.
+                    findAllByUserNot(user, pageable).stream().collect(Collectors.toList()));
+
+
+            for (ItemRequestDto itemRequestDto : itemRequestDtos) {
+                itemRequestDto.setItems(itemMapper.toItemDto(itemRepository.findAllByItemRequest(
+                        itemRequestMapper.toItemRequest(itemRequestDto, userMapper.toUserDto(user)))));
+            }
+
+            return itemRequestDtos;
+        } else {
+            return new ArrayList<>();
         }
-
-        return itemRequestDtos;
     }
+
 }

@@ -14,7 +14,6 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.requests.ItemRequestMapper;
 import ru.practicum.shareit.requests.ItemRequestService;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.model.ItemRequest;
@@ -133,8 +132,10 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto create(Long userId, Long itemId, CommentDto commentDto)
             throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException {
 
-        if (bookingService.findAllByBooker(userId, BookingStatus.CURRENT.toString()).size() > 0 ||
-                bookingService.findAllByBooker(userId, BookingStatus.PAST.toString()).size()  > 0) {
+        if (bookingService.findAllByBooker(userId, BookingStatus.CURRENT.toString(),
+                0, Integer.MAX_VALUE).size() > 0 ||
+                bookingService.findAllByBooker(userId, BookingStatus.PAST.toString(),
+                        0, Integer.MAX_VALUE).size()  > 0) {
             UserDto userDto = userService.findById(userId);
             Item item = itemRepository.findById(itemId).get();
             return commentMapper.toCommentDto(commentRepository.save(commentMapper.toComment(commentDto,
