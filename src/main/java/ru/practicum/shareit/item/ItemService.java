@@ -20,9 +20,9 @@ public interface ItemService {
 
     ItemDto findById(Long itemId) throws EntityNotFoundException;
 
-    List<ItemResponseDto> findByUser(Long userid) throws EntityNotFoundException;
+    List<ItemResponseDto> findByUser(Long userid, Integer from, Integer size) throws EntityNotFoundException;
 
-    List<ItemDto> findByCriteria(String text);
+    List<ItemDto> findByCriteria(String text, Integer from, Integer size);
 
     List<ItemDto> findByRequest(ItemRequest itemRequest);
 

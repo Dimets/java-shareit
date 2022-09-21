@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -96,15 +98,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponseDto> findByUser(Long userId) throws EntityNotFoundException {
+    public List<ItemResponseDto> findByUser(Long userId, Integer from, Integer size) throws EntityNotFoundException {
         User user = userMapper.toUser(userService.findById(userId));
+
+        Pageable pageable = PageRequest.of(from / size, size);
 
         List<ItemResponseDto> itemResponseDtos = new ArrayList<>();
         BookingUserDto lastBooking;
         BookingUserDto nextBooking;
         List<CommentDto> commentDtoList;
 
-        List<ItemDto> itemDtoList = itemMapper.toItemDto(itemRepository.findAllByOwner(user));
+        List<ItemDto> itemDtoList = itemMapper.toItemDto(itemRepository.findAllByOwner(user, pageable));
 
         for (ItemDto itemDto : itemDtoList) {
             lastBooking = bookingService.findLastByItem(itemDto.getId());
@@ -119,9 +123,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findByCriteria(String text) {
+    public List<ItemDto> findByCriteria(String text, Integer from, Integer size) {
         if (text.length() > 0) {
-            return itemMapper.toItemDto(itemRepository.findItemsByCriteria(text.toLowerCase()));
+            Pageable pageable = PageRequest.of(from / size, size);
+            return itemMapper.toItemDto(itemRepository.findItemsByCriteria(text.toLowerCase(), pageable));
         } else {
             return new ArrayList<>();
         }
