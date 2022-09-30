@@ -14,6 +14,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query(value = "select * from items where is_available = true " +
             "and (lower(description) like %?1% or lower(name) like %?1%)", nativeQuery = true)
     Page<Item> findItemsByCriteria(String text, Pageable pageable);
+
     Page<Item> findAllByOwner(User owner, Pageable pageable);
 
     List<Item> findAllByItemRequest(ItemRequest itemRequest);

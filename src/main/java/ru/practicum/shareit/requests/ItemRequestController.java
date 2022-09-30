@@ -61,6 +61,6 @@ public class ItemRequestController {
             throws EntityNotFoundException {
         log.info("GET /requests/all?from={}&size={} userId={}", from, size, userId);
 
-        return itemRequestService.findAllOther(userId, from , size);
+        return itemRequestService.findAllOther(userId, from, size);
     }
 }

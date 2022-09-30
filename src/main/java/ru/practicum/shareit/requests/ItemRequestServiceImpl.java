@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ItemRequestServiceImpl implements ItemRequestService{
+public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
     private final UserService userService;
@@ -69,7 +69,7 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
     @Override
     public List<ItemRequestDto> findAllOther(Long userId, Integer from, Integer size) throws EntityNotFoundException {
-        if (size !=Integer.MAX_VALUE) {
+        if (size != Integer.MAX_VALUE) {
 
             User user = userMapper.toUser(userService.findById(userId));
 
@@ -77,8 +77,8 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
             Pageable pageable = PageRequest.of(from / size, size, newestFirst);
 
-            List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toItemRequestDto(itemRequestRepository.
-                    findAllByUserNot(user, pageable).stream().collect(Collectors.toList()));
+            List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toItemRequestDto(itemRequestRepository
+                    .findAllByUserNot(user, pageable).stream().collect(Collectors.toList()));
 
 
             for (ItemRequestDto itemRequestDto : itemRequestDtos) {
