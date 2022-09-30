@@ -23,7 +23,7 @@ public class UserController {
     @PostMapping
     public UserDto create(@Valid @RequestBody UserDto userDto) throws EmailFormatException {
         log.info("POST /users");
-        log.debug("POST /users {}", userDto);
+        log.info("POST /users {}", userDto);
         return userService.create(userDto);
     }
 
