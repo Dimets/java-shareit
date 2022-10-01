@@ -124,6 +124,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingExtDto> findAllByBooker(Long userId, String state, Integer from, Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
+        BookingStatus status;
+
+        try {
+            status = BookingStatus.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new UnsupportedStatusException("Unknown state: " + state);
+        }
 
         User user = userMapper.toUser(userService.findById(userId));
 
@@ -133,13 +140,6 @@ public class BookingServiceImpl implements BookingService {
 
 
         List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
-        BookingStatus status;
-
-        try {
-            status = BookingStatus.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            throw new UnsupportedStatusException("Unknown state: " + state);
-        }
 
         switch (status) {
             case ALL :

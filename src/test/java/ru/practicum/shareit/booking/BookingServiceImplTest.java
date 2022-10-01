@@ -1,12 +1,15 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingExtDto;
+import ru.practicum.shareit.exception.BookingValidationException;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserService;
@@ -80,6 +83,10 @@ public class BookingServiceImplTest {
 
         assertThat(result.getId()).isNotNull();
         assertThat(result.getStatus()).isEqualTo(BookingStatus.APPROVED);
+
+        final BookingValidationException exception = Assertions.assertThrows(
+                BookingValidationException.class,
+                () -> bookingService.approve(bookingDto.getId(), ownerUserDto.getId(), true));
     }
 
     @Test
@@ -106,5 +113,12 @@ public class BookingServiceImplTest {
         assertThat(result.getItemId()).isEqualTo(itemDto.getId());
         assertThat(result.getBooker()).isEqualTo(bookerUserDto.getId());
         assertThat(result.getStatus()).isEqualTo(BookingStatus.WAITING);
+    }
+
+    @Test
+    void findAllByBooker() {
+        final UnsupportedStatusException exception = Assertions.assertThrows(
+                UnsupportedStatusException.class,
+                () -> bookingService.findAllByBooker(1L, "Unknown", 1, 1));
     }
 }
