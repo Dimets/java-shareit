@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -116,9 +117,46 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void findAllByBooker() {
+    void findAllByBookerWithUnsupportedStatusException() {
         final UnsupportedStatusException exception = Assertions.assertThrows(
                 UnsupportedStatusException.class,
                 () -> bookingService.findAllByBooker(1L, "Unknown", 1, 1));
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findAllByOwner() throws Exception {
+        ownerUserDto = userService.create(new UserDto(null, "owner user name", "owner_user@email"));
+
+        bookerUserDto = userService.create(new UserDto(null, "booker user name", "booker_user@email"));
+
+        itemDto = itemService.create(ownerUserDto.getId(), new ItemDto(null, "item name",
+                "item description", true, ownerUserDto.getId(), null));
+
+        bookingDto =  bookingService.create(bookerUserDto.getId(), new BookingDto(null,
+                LocalDateTime.of(2050, 1, 1, 10, 05, 06),
+                LocalDateTime.of(2050, 1, 10, 12, 34, 39),
+                itemDto.getId(), bookerUserDto.getId(), BookingStatus.WAITING));
+
+        List<BookingExtDto> result = bookingService.findAllByOwner(ownerUserDto.getId(), "ALL",
+                0, 1);
+        assertThat(result).hasSize(1);
+
+        result = bookingService.findAllByOwner(ownerUserDto.getId(), "CURRENT",0, 1);
+        assertThat(result).hasSize(0);
+
+        result = bookingService.findAllByOwner(ownerUserDto.getId(), "PAST",0, 1);
+        assertThat(result).hasSize(0);
+
+        result = bookingService.findAllByOwner(ownerUserDto.getId(), "FUTURE",0, 1);
+        assertThat(result).hasSize(1);
+
+        result = bookingService.findAllByOwner(ownerUserDto.getId(), "WAITING",0, 1);
+        assertThat(result).hasSize(1);
+
+        result = bookingService.findAllByOwner(ownerUserDto.getId(), "REJECTED",0, 1);
+        assertThat(result).hasSize(0);
+
     }
 }
