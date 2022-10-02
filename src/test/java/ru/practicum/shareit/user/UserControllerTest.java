@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.exception.EmailFormatException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
@@ -131,6 +132,17 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/users")
                         .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testHandleEntityNotFoundException() throws Exception {
+        when(userService.findById(any())).thenThrow((new EntityNotFoundException("msg")));
+
+        mockMvc.perform(get("/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

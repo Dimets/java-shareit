@@ -50,6 +50,7 @@ public class ItemRequestServiceImplTest {
 
     @Test
     @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAll() throws Exception {
         userDto = userService.create(new UserDto(null, "user name", "user@email"));
 
@@ -67,5 +68,25 @@ public class ItemRequestServiceImplTest {
         assertThat(result.get(0).getRequesterId()).isEqualTo(resultItemRequestDto.getRequesterId());
         assertThat(result.get(0).getCreated()).isEqualTo(resultItemRequestDto.getCreated());
         assertThat(result.get(0).getItems()).hasSize(0);
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findAllOther() throws Exception {
+        userDto = userService.create(new UserDto(null, "user name", "user@email"));
+
+        itemRequestDto = new ItemRequestDto(null, "item request description",
+                LocalDateTime.of(2022, 9, 20, 22, 00, 55),
+                userDto.getId(), Collections.emptyList());
+
+        ItemRequestDto resultItemRequestDto = itemRequestService.create(userDto, itemRequestDto);
+
+        UserDto otherUserDto = userService.create(new UserDto(null, "other user name",
+                "other_user@email"));
+
+        List<ItemRequestDto> result = itemRequestService.findAllOther(otherUserDto.getId(), 0, 1);
+
+        assertThat(result).hasSize(1);
     }
 }

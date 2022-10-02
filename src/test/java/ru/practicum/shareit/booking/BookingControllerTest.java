@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingExtDto;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -157,4 +158,17 @@ public class BookingControllerTest {
         Mockito.verify(bookingService, Mockito.times(1)).findAllByOwner(1L,
                 "APPROVED", 0, Integer.MAX_VALUE);
     }
+
+    @Test
+    void testHandleUnsupportedStatusException() throws Exception {
+        when(bookingService.findAllByBooker(any(), any(), any(), any()))
+                .thenThrow((new EntityNotFoundException("msg")));
+
+        mockMvc.perform(get("/bookings")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
+
 }

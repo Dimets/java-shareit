@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingExtDto;
+import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.exception.BookingValidationException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.item.ItemService;
@@ -157,6 +158,49 @@ public class BookingServiceImplTest {
 
         result = bookingService.findAllByOwner(ownerUserDto.getId(), "REJECTED",0, 1);
         assertThat(result).hasSize(0);
+    }
 
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findNextByItem() throws Exception {
+        ownerUserDto = userService.create(new UserDto(null, "owner user name", "owner_user@email"));
+
+        bookerUserDto = userService.create(new UserDto(null, "booker user name", "booker_user@email"));
+
+        itemDto = itemService.create(ownerUserDto.getId(), new ItemDto(null, "item name",
+                "item description", true, ownerUserDto.getId(), null));
+
+        bookingDto =  bookingService.create(bookerUserDto.getId(), new BookingDto(null,
+                LocalDateTime.of(2050, 1, 1, 10, 05, 06),
+                LocalDateTime.of(2050, 1, 10, 12, 34, 39),
+                itemDto.getId(), bookerUserDto.getId(), BookingStatus.WAITING));
+
+        BookingUserDto result = bookingService.findNextByItem(itemDto.getId());
+
+        assertThat(result.getId()).isEqualTo(bookingDto.getId());
+        assertThat(result.getBookerId()).isEqualTo(bookingDto.getBooker());
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findByIdExt() throws Exception {
+        ownerUserDto = userService.create(new UserDto(null, "owner user name", "owner_user@email"));
+
+        bookerUserDto = userService.create(new UserDto(null, "booker user name", "booker_user@email"));
+
+        itemDto = itemService.create(ownerUserDto.getId(), new ItemDto(null, "item name",
+                "item description", true, ownerUserDto.getId(), null));
+
+        bookingDto =  bookingService.create(bookerUserDto.getId(), new BookingDto(null,
+                LocalDateTime.of(2050, 1, 1, 10, 05, 06),
+                LocalDateTime.of(2050, 1, 10, 12, 34, 39),
+                itemDto.getId(), bookerUserDto.getId(), BookingStatus.WAITING));
+
+        BookingExtDto result = bookingService.findById(bookingDto.getId(), bookingDto.getId());
+
+        assertThat(result.getId()).isEqualTo(bookingDto.getId());
+        assertThat(result.getBooker().getId()).isEqualTo(bookingDto.getBooker());
     }
 }
