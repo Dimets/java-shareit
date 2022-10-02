@@ -169,7 +169,7 @@ public class ItemServiceImplTest {
     @Test
     @Sql({"/schema.sql"})
     @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    void findByIdExt() throws Exception{
+    void findByIdExt() throws Exception {
         userDto = userService.create(new UserDto(1L, "name", "name@email"));
 
         ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
