@@ -189,4 +189,28 @@ public class ItemServiceImplTest {
         assertThat(result.getId()).isEqualTo(itemDto.getId());
     }
 
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void update() throws Exception {
+        userDto = userService.create(new UserDto(1L, "name", "name@email"));
+
+        ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
+                Boolean.TRUE, 1L, null);
+
+        ItemRequestDto itemRequestDto = itemRequestService.create(userDto, new ItemRequestDto(1L,
+                "request desc",LocalDateTime.MAX, userDto.getId(), null));
+
+        itemService.create(userDto.getId(), itemDto);
+
+        itemDto.setDescription("updated");
+
+        ItemDto result = itemService.update(userDto.getId(), itemDto);
+
+        assertThat(result.getDescription()).isEqualTo(itemDto.getDescription());
+
+        assertThat(result).isEqualTo(itemDto);
+    }
+
+
 }

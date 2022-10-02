@@ -10,6 +10,8 @@ import ru.practicum.shareit.exception.EmailFormatException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -80,5 +82,17 @@ public class UserServiceImplTest {
 
         assertThat(result.getName()).isEqualTo("updated name");
         assertThat(result.getEmail()).isEqualTo(userDto.getEmail());
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findAll() throws Exception {
+        userDto = userService.create(new UserDto(1L, "name", "user@email"));
+
+        List<UserDto> result = userService.findAll();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(userDto);
     }
 }

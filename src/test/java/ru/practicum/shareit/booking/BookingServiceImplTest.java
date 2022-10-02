@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingExtDto;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.exception.BookingValidationException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -203,4 +204,44 @@ public class BookingServiceImplTest {
         assertThat(result.getId()).isEqualTo(bookingDto.getId());
         assertThat(result.getBooker().getId()).isEqualTo(bookingDto.getBooker());
     }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findByIdWithEntityNotFoundException() {
+        final EntityNotFoundException exception = Assertions.assertThrows(
+                EntityNotFoundException.class,
+                () -> bookingService.findById(-1L));
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void createWithBookingValidationException() throws Exception {
+        ownerUserDto = userService.create(new UserDto(null, "owner user name", "owner_user@email"));
+
+        bookerUserDto = userService.create(new UserDto(null, "booker user name", "booker_user@email"));
+
+        itemDto = itemService.create(ownerUserDto.getId(), new ItemDto(null, "item name",
+                "item description", true, ownerUserDto.getId(), null));
+
+        bookingDto =  new BookingDto(null, LocalDateTime.now().minusDays(3),
+                LocalDateTime.now().plusDays(5), itemDto.getId(), bookerUserDto.getId(), BookingStatus.WAITING);
+        final BookingValidationException exceptionStartInPast = Assertions.assertThrows(
+                BookingValidationException.class,
+                () -> bookingService.create(bookerUserDto.getId(),bookingDto));
+
+        bookingDto.setStart(LocalDateTime.MAX);
+        final BookingValidationException exceptionStartBiggerEnd = Assertions.assertThrows(
+                BookingValidationException.class,
+                () -> bookingService.create(bookerUserDto.getId(),bookingDto));
+
+
+        bookingDto.setEnd(LocalDateTime.now().minusDays(5));
+        final BookingValidationException exceptionEndInPast = Assertions.assertThrows(
+                BookingValidationException.class,
+                () -> bookingService.create(bookerUserDto.getId(),bookingDto));
+
+    }
+
 }
