@@ -26,14 +26,6 @@ public class BookingMapper {
                 booking.getBooker().getId(), booking.getStatus());
     }
 
-    public List<BookingDto> toBookingDto(List<Booking> bookings) {
-        List<BookingDto> bookingDtoList = new ArrayList<>();
-        for (Booking booking : bookings) {
-            bookingDtoList.add(toBookingDto(booking));
-        }
-        return bookingDtoList;
-    }
-
     public Booking toBooking(BookingDto bookingDto, UserDto userDto, ItemDto itemDto) {
         Booking booking = new Booking();
 

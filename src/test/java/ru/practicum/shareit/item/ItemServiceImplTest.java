@@ -166,4 +166,27 @@ public class ItemServiceImplTest {
         assertThat(result.get(0)).isEqualTo(itemDto);
     }
 
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findByIdExt() throws Exception{
+        userDto = userService.create(new UserDto(1L, "name", "name@email"));
+
+        ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
+                Boolean.TRUE, 1L, null);
+
+        ItemRequestDto itemRequestDto = itemRequestService.create(userDto, new ItemRequestDto(1L,
+                "request desc",LocalDateTime.MAX, userDto.getId(), null));
+
+        itemDto.setRequestId(itemRequestDto.getId());
+
+        itemService.create(userDto.getId(), itemDto);
+
+
+        ItemResponseDto result = itemService.findById(userDto.getId(), itemDto.getId());
+
+        assertThat(result.getDescription()).isEqualTo(itemDto.getDescription());
+        assertThat(result.getId()).isEqualTo(itemDto.getId());
+    }
+
 }
