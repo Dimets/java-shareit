@@ -12,10 +12,16 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.requests.ItemRequestService;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -26,6 +32,9 @@ public class ItemServiceImplTest {
     @Autowired
     private final UserService userService;
 
+    @Autowired
+    private final ItemRequestService itemRequestService;
+
     CommentDto commentDto;
 
     UserDto userDto;
@@ -33,7 +42,7 @@ public class ItemServiceImplTest {
     @Test
     @Sql({"/schema.sql"})
     @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    void create() throws EmailFormatException {
+    void createWithEmailFormatException() throws EmailFormatException {
         userDto = new UserDto(1L, "name", "name@email");
 
         userService.create(userDto);
@@ -64,4 +73,74 @@ public class ItemServiceImplTest {
                 () -> itemService.update(wrongUserDto.getId(), itemDto));
     }
 
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void create() throws EmailFormatException, EntityNotFoundException {
+        userDto = userService.create(new UserDto(1L, "name", "name@email"));
+
+        ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
+                Boolean.TRUE, 1L, null);
+
+        ItemRequestDto itemRequestDto = itemRequestService.create(userDto, new ItemRequestDto(1L,
+                "request desc",LocalDateTime.MAX, userDto.getId(), null));
+
+        itemDto.setRequestId(itemRequestDto.getId());
+
+        ItemDto result = itemService.create(userDto.getId(), itemDto);
+
+        assertThat(result).isEqualTo(itemDto);
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findById() throws EntityNotFoundException, EmailFormatException {
+        userDto = userService.create(new UserDto(1L, "name", "name@email"));
+
+        ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
+                Boolean.TRUE, 1L, null);
+
+        ItemRequestDto itemRequestDto = itemRequestService.create(userDto, new ItemRequestDto(1L,
+                "request desc",LocalDateTime.MAX, userDto.getId(), null));
+
+        itemDto.setRequestId(itemRequestDto.getId());
+
+        itemService.create(userDto.getId(), itemDto);
+
+
+        ItemDto result = itemService.findById(itemDto.getId());
+
+        assertThat(result).isEqualTo(itemDto);
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findByIdWithEntityNotFoundException() {
+        final EntityNotFoundException exception = Assertions.assertThrows(
+                EntityNotFoundException.class,
+                () -> itemService.findById(-1L));
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findByUser() throws EntityNotFoundException, EmailFormatException {
+        userDto = userService.create(new UserDto(1L, "name", "name@email"));
+
+        ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
+                Boolean.TRUE, 1L, null);
+
+        ItemRequestDto itemRequestDto = itemRequestService.create(userDto, new ItemRequestDto(1L,
+                "request desc",LocalDateTime.MAX, userDto.getId(), null));
+
+        itemDto.setRequestId(itemRequestDto.getId());
+
+        itemService.create(userDto.getId(), itemDto);
+
+        List<ItemResponseDto> result = itemService.findByUser(userDto.getId(), 0, 1);
+
+        assertThat(result).hasSize(1);
+    }
 }
