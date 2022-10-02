@@ -8,9 +8,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class BookingMapper {
     private final ItemMapper itemMapper;
