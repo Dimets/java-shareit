@@ -1,14 +1,17 @@
 package ru.practicum.shareit.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.practicum.shareit.exception.EmailFormatException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
@@ -108,5 +111,30 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
 
         Mockito.verify(userService, Mockito.times(1)).deleteById(userDto.getId());
+    }
+
+    @Test
+    void testHandleSqlExceptionHelper() throws Exception {
+        when(userService.create(any())).thenThrow(new DataIntegrityViolationException("users_email_key",
+                new Throwable("users_email_key")));
+
+        mockMvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testHandleEmailFormatException() throws Exception {
+        when(userService.create(any())).thenThrow((new EmailFormatException("msg")));
+
+        mockMvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
     }
 }
