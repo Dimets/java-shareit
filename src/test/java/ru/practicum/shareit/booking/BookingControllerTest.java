@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.ShareItConstants.MAX_PAGE_SIZE;
 
 @WebMvcTest(controllers = BookingController.class)
 public class BookingControllerTest {
@@ -134,7 +135,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").value(bookingDto.getEnd().toString()));
 
         Mockito.verify(bookingService, Mockito.times(1)).findAllByBooker(1L,
-                "APPROVED", 0, 20);
+                "APPROVED", 0,  MAX_PAGE_SIZE);
     }
 
     @Test
@@ -157,7 +158,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").value(bookingDto.getEnd().toString()));
 
         Mockito.verify(bookingService, Mockito.times(1)).findAllByOwner(1L,
-                "APPROVED", 0, 20);
+                "APPROVED", 0,  MAX_PAGE_SIZE);
     }
 
     @Test

@@ -13,6 +13,8 @@ import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ru.practicum.shareit.util.ShareItConstants.DEFAULT_PAGE_SIZE;
+
 @RestController
 @RequestMapping(path = "/requests")
 @Validated
@@ -57,7 +59,7 @@ public class ItemRequestController {
     @GetMapping("/all")
     public List<ItemRequestDto> findAllItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                     @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                                    @RequestParam(defaultValue = "0x7fffffff") @Min(1) Integer size)
+                                                    @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer size)
             throws EntityNotFoundException {
         log.info("GET /requests/all?from={}&size={} userId={}", from, size, userId);
 

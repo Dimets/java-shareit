@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.ShareItConstants.MAX_PAGE_SIZE;
 
 @WebMvcTest(controllers = ItemController.class)
 public class ItemControllerTest {
@@ -117,7 +118,7 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].comments", hasSize(1)));
 
         Mockito.verify(itemService, Mockito.times(1)).findByUser(1L, 0,
-                Integer.MAX_VALUE);
+                MAX_PAGE_SIZE);
     }
 
     @Test
@@ -141,7 +142,7 @@ public class ItemControllerTest {
 
 
         Mockito.verify(itemService, Mockito.times(1)).findByCriteria("first", 0,
-                Integer.MAX_VALUE);
+                MAX_PAGE_SIZE);
     }
 
     @Test
