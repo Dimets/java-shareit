@@ -178,6 +178,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public Boolean isExistsCurrentByBooker(Long userId) {
+        return bookingRepository.existsByBookerIdAndStartIsBeforeAndEndIsAfter(userId,
+                LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    @Override
+    public Boolean isExistsPastByBooker(Long userId) {
+        return bookingRepository.existsByBookerIdAndEndIsBefore(userId, LocalDateTime.now());
+    }
+
+    @Override
     public List<BookingExtDto> findAllByOwner(Long userId, String state, Integer from, Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
 

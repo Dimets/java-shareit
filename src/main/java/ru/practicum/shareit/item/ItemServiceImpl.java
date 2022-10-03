@@ -137,10 +137,8 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto create(Long userId, Long itemId, CommentDto commentDto)
             throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException {
 
-        if (bookingService.findAllByBooker(userId, BookingStatus.CURRENT.toString(),
-                0, Integer.MAX_VALUE).size() > 0 ||
-                bookingService.findAllByBooker(userId, BookingStatus.PAST.toString(),
-                        0, Integer.MAX_VALUE).size()  > 0) {
+        if (bookingService.isExistsCurrentByBooker(userId) ||
+                bookingService.isExistsPastByBooker(userId)) {
             UserDto userDto = userService.findById(userId);
             Item item = itemRepository.findById(itemId).get();
             return commentMapper.toCommentDto(commentRepository.save(commentMapper.toComment(commentDto,

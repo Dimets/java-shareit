@@ -41,4 +41,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "select * from bookings where item_id = ?1 and start_dt > ?2 order by  start_dt asc limit 1",
             nativeQuery = true)
     Optional<Booking> findNextBookingByItem(Item item, LocalDateTime now);
+
+    Boolean existsByBookerIdAndStartIsBeforeAndEndIsAfter(Long bookerId, LocalDateTime nowStart,
+                                                          LocalDateTime nowEnd);
+
+    Boolean existsByBookerIdAndEndIsBefore(Long bookerId, LocalDateTime nowStart);
 }

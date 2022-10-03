@@ -29,4 +29,9 @@ public interface BookingService {
     BookingUserDto findLastByItem(Long itemId) throws EntityNotFoundException;
 
     BookingUserDto findNextByItem(Long itemId) throws EntityNotFoundException;
+
+    Boolean isExistsCurrentByBooker(Long userId);
+
+    Boolean isExistsPastByBooker(Long userId);
 }
+
