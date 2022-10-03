@@ -127,6 +127,19 @@ public class UserControllerTest {
     }
 
     @Test
+    void testHandleSqlExceptionHelperWithOtherClause() throws Exception {
+        when(userService.create(any())).thenThrow(new DataIntegrityViolationException("other_key",
+                new Throwable("other_key")));
+
+        mockMvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
     void testHandleEmailFormatException() throws Exception {
         when(userService.create(any())).thenThrow((new EmailFormatException("msg")));
 
