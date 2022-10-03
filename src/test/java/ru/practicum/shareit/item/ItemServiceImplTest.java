@@ -264,10 +264,10 @@ public class ItemServiceImplTest {
         UserDto bookerDto = userService.create(new UserDto(2L, "booker name", "booker_name@email"));
 
         BookingDto bookingDto = bookingService.create(bookerDto.getId(), new BookingDto(1L,
-                LocalDateTime.now().plusNanos(50000000), LocalDateTime.now().plusDays(1), itemDto.getId(), bookerDto.getId(),
+                LocalDateTime.now().plusNanos(500000000), LocalDateTime.now().plusDays(1), itemDto.getId(), bookerDto.getId(),
                 BookingStatus.APPROVED));
 
-        TimeUnit.SECONDS.sleep(1);
+        TimeUnit.SECONDS.sleep(2);
 
 
         CommentDto result = itemService.create(bookerDto.getId(), itemDto.getId(), commentDto);
@@ -276,5 +276,4 @@ public class ItemServiceImplTest {
         assertThat(result.getItemId()).isEqualTo(itemDto.getId());
         assertThat(result.getAuthorName()).isEqualTo(bookerDto.getName());
     }
-
 }

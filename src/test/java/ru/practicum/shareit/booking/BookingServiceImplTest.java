@@ -95,6 +95,47 @@ public class BookingServiceImplTest {
     @Test
     @Sql({"/schema.sql"})
     @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void approveByNotOwner() throws Exception {
+        ownerUserDto = userService.create(new UserDto(null, "owner user name", "owner_user@email"));
+
+        bookerUserDto = userService.create(new UserDto(null, "booker user name", "booker_user@email"));
+
+        itemDto = itemService.create(ownerUserDto.getId(), new ItemDto(null, "item name",
+                "item description", true, ownerUserDto.getId(), null));
+
+        bookingDto =  bookingService.create(bookerUserDto.getId(), new BookingDto(null,
+                LocalDateTime.now().plusHours(3),
+                LocalDateTime.now().plusDays(5), itemDto.getId(), bookerUserDto.getId(), BookingStatus.WAITING));
+
+        final EntityNotFoundException exception = Assertions.assertThrows(
+                EntityNotFoundException.class,
+                () -> bookingService.approve(bookingDto.getId(), bookerUserDto.getId(), true));
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void rejectApprove() throws Exception {
+        ownerUserDto = userService.create(new UserDto(null, "owner user name", "owner_user@email"));
+
+        bookerUserDto = userService.create(new UserDto(null, "booker user name", "booker_user@email"));
+
+        itemDto = itemService.create(ownerUserDto.getId(), new ItemDto(null, "item name",
+                "item description", true, ownerUserDto.getId(), null));
+
+        bookingDto =  bookingService.create(bookerUserDto.getId(), new BookingDto(null,
+                LocalDateTime.now().plusHours(3),
+                LocalDateTime.now().plusDays(5), itemDto.getId(), bookerUserDto.getId(), BookingStatus.WAITING));
+
+        BookingExtDto result = bookingService.approve(bookingDto.getId(), ownerUserDto.getId(), false);
+
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(BookingStatus.REJECTED);
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findById() throws Exception {
         ownerUserDto = userService.create(new UserDto(null, "owner user name", "owner_user@email"));
 

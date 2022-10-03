@@ -1,10 +1,12 @@
 package ru.practicum.shareit.requests;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -88,5 +90,15 @@ public class ItemRequestServiceImplTest {
         List<ItemRequestDto> result = itemRequestService.findAllOther(otherUserDto.getId(), 0, 1);
 
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findByIdWithEntityNotFoundException() {
+        final EntityNotFoundException exception = Assertions.assertThrows(
+                EntityNotFoundException.class,
+                () -> itemRequestService.findById(-1L));
+        assertThat(exception.getMessage()).isEqualTo("Запрос с id=-1 не найден");
     }
 }
