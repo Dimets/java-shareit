@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EmailFormatException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -13,13 +16,16 @@ import ru.practicum.shareit.exception.UsersDoNotMatchException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.requests.ItemRequestMapper;
 import ru.practicum.shareit.requests.ItemRequestService;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,9 +41,14 @@ public class ItemServiceImplTest {
     @Autowired
     private final ItemRequestService itemRequestService;
 
+    @Autowired
+    private final BookingService bookingService;
+
     CommentDto commentDto;
 
     UserDto userDto;
+
+    ItemRequestMapper itemRequestMapper = new ItemRequestMapper(new UserMapper());
 
     @Test
     @Sql({"/schema.sql"})
@@ -212,5 +223,58 @@ public class ItemServiceImplTest {
         assertThat(result).isEqualTo(itemDto);
     }
 
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findByRequest() throws Exception {
+        userDto = userService.create(new UserDto(1L, "name", "name@email"));
+
+        ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
+                Boolean.TRUE, 1L, null);
+
+        ItemRequestDto itemRequestDto = itemRequestService.create(userDto, new ItemRequestDto(1L,
+                "request desc",LocalDateTime.MAX, userDto.getId(), null));
+
+        itemDto.setRequestId(itemRequestDto.getId());
+
+        itemService.create(userDto.getId(), itemDto);
+
+        List<ItemDto> result = itemService.findByRequest(itemRequestMapper.toItemRequest(itemRequestDto, userDto));
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    @Sql({"/schema.sql"})
+    @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void createWithComment() throws Exception{
+        userDto = userService.create(new UserDto(1L, "name", "name@email"));
+
+        ItemDto itemDto = itemService.create(userDto.getId(), new ItemDto(1L, "first item  name",
+                "first item description", Boolean.TRUE, 1L, null));
+
+        ItemRequestDto itemRequestDto = itemRequestService.create(userDto, new ItemRequestDto(1L,
+                "request desc",LocalDateTime.MAX, userDto.getId(), null));
+
+        itemDto.setRequestId(itemRequestDto.getId());
+
+        commentDto = new CommentDto(1L, "comment text", itemDto.getId(), "name", LocalDateTime.now());
+
+        UserDto bookerDto = userService.create(new UserDto(2L, "booker name", "booker_name@email"));
+
+        BookingDto bookingDto = bookingService.create(bookerDto.getId(), new BookingDto(1L,
+                LocalDateTime.now().plusNanos(50000000), LocalDateTime.now().plusDays(1), itemDto.getId(), bookerDto.getId(),
+                BookingStatus.APPROVED));
+
+        TimeUnit.SECONDS.sleep(1);
+
+
+        CommentDto result = itemService.create(bookerDto.getId(), itemDto.getId(), commentDto);
+
+        assertThat(result.getText()).isEqualTo(commentDto.getText());
+        assertThat(result.getItemId()).isEqualTo(itemDto.getId());
+        assertThat(result.getAuthorName()).isEqualTo(bookerDto.getName());
+    }
 
 }
