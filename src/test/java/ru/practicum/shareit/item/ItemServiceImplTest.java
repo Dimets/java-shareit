@@ -82,6 +82,8 @@ public class ItemServiceImplTest {
         final UsersDoNotMatchException exception = Assertions.assertThrows(
                 UsersDoNotMatchException.class,
                 () -> itemService.update(wrongUserDto.getId(), itemDto));
+
+
     }
 
     @Test
@@ -175,6 +177,9 @@ public class ItemServiceImplTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).isEqualTo(itemDto);
+
+        result =  itemService.findByCriteria("", 0, 1);
+        assertThat(result).hasSize(0);
     }
 
     @Test
@@ -193,11 +198,15 @@ public class ItemServiceImplTest {
 
         itemService.create(userDto.getId(), itemDto);
 
+        UserDto otherUserDto = userService.create(new UserDto(2L, "other name", "other_name@email"));
 
         ItemResponseDto result = itemService.findById(userDto.getId(), itemDto.getId());
 
         assertThat(result.getDescription()).isEqualTo(itemDto.getDescription());
         assertThat(result.getId()).isEqualTo(itemDto.getId());
+
+        result = itemService.findById(otherUserDto.getId(), itemDto.getId());
+        assertThat(result.getLastBooking()).isNull();
     }
 
     @Test
