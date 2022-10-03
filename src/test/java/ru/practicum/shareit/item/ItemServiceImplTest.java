@@ -15,6 +15,7 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoTest;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.requests.ItemRequestMapper;
 import ru.practicum.shareit.requests.ItemRequestService;

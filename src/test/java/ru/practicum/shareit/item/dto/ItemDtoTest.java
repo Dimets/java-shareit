@@ -1,11 +1,10 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.dto;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
-import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.io.IOException;
 
@@ -15,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JsonTest
 public class ItemDtoTest {
     @Autowired
-    private JacksonTester<ItemDto> json;
+    private JacksonTester<ru.practicum.shareit.item.dto.ItemDto> json;
 
     @Test
     void testItemDto() throws IOException {
@@ -39,5 +38,16 @@ public class ItemDtoTest {
         assertThat(result).extractingJsonPathNumberValue("$.requestId")
                 .isEqualTo(itemDto.getRequestId().intValue());
 
+    }
+
+    @Test
+    void testCompareTo() {
+        ItemDto itemDto = new ItemDto(1L, "first item  name", "first item description",
+                Boolean.TRUE, 1L, 1L);
+
+        ItemDto otherItemDto = new ItemDto(2L, "second item  name", "second item description",
+                Boolean.TRUE, 1L, 1L);
+
+        assertThat(itemDto.compareTo(otherItemDto)).isEqualTo(-1);
     }
 }
