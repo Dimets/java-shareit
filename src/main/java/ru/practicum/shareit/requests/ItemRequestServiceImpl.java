@@ -80,7 +80,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toItemRequestDto(itemRequestRepository
                     .findAllByUserNot(user, pageable).stream().collect(Collectors.toList()));
 
-
             for (ItemRequestDto itemRequestDto : itemRequestDtos) {
                 itemRequestDto.setItems(itemMapper.toItemDto(itemRepository.findAllByItemRequest(
                         itemRequestMapper.toItemRequest(itemRequestDto, userMapper.toUserDto(user)))));

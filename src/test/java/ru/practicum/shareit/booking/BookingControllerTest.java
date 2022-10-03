@@ -134,7 +134,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").value(bookingDto.getEnd().toString()));
 
         Mockito.verify(bookingService, Mockito.times(1)).findAllByBooker(1L,
-                "APPROVED", 0, Integer.MAX_VALUE);
+                "APPROVED", 0, 20);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].end").value(bookingDto.getEnd().toString()));
 
         Mockito.verify(bookingService, Mockito.times(1)).findAllByOwner(1L,
-                "APPROVED", 0, Integer.MAX_VALUE);
+                "APPROVED", 0, 20);
     }
 
     @Test

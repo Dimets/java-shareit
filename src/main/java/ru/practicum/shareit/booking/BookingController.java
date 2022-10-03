@@ -54,7 +54,7 @@ public class BookingController {
                                               @RequestParam(required = false, defaultValue = "ALL",
                                                       value = "state") String state,
                                               @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                              @RequestParam(defaultValue = "0x7fffffff") @Min(1) Integer size)
+                                              @RequestParam(defaultValue = "20") @Min(1) Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
 
         log.info("GET /bookings?from={}&size={} bookerId={} state={}", from, size, userId, state);
@@ -67,7 +67,7 @@ public class BookingController {
                                              @RequestParam(required = false, defaultValue = "ALL",
                                                      value = "state") String state,
                                              @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                             @RequestParam(defaultValue = "0x7fffffff") @Min(1) Integer size)
+                                             @RequestParam(defaultValue = "20") @Min(1) Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
         log.info("GET /bookings/owner?from={}&size={} ownerId={} state={}", from, size, userId, state);
         return bookingService.findAllByOwner(userId, state, from, size);

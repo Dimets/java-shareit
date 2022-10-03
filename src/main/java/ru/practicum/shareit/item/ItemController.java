@@ -48,7 +48,7 @@ public class ItemController {
     @GetMapping
     List<ItemResponseDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId,
                                     @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                    @RequestParam(defaultValue = "0x7fffffff") @Min(1) Integer size)
+                                    @RequestParam(defaultValue = "20") @Min(1) Integer size)
             throws EntityNotFoundException {
         log.info("GET /items/?from={}&size={} by userId={}", from, size, userId);
         return itemService.findByUser(userId, from, size);
@@ -56,7 +56,7 @@ public class ItemController {
 
     @GetMapping("/search")
     List<ItemDto> search(@RequestParam String text, @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                         @RequestParam(defaultValue = "0x7fffffff") @Min(1) Integer size) {
+                         @RequestParam(defaultValue = "20") @Min(1) Integer size) {
         log.info("GET /search?text={}&from={}&size={}", text, from, size);
         return itemService.findByCriteria(text, from, size);
     }
