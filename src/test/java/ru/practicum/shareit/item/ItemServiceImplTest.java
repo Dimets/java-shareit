@@ -248,7 +248,7 @@ public class ItemServiceImplTest {
     @Test
     @Sql({"/schema.sql"})
     @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    void createWithComment() throws Exception{
+    void createWithComment() throws Exception {
         userDto = userService.create(new UserDto(1L, "name", "name@email"));
 
         ItemDto itemDto = itemService.create(userDto.getId(), new ItemDto(1L, "first item  name",
