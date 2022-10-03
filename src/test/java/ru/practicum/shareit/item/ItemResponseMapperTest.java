@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoTest;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 
 import java.time.LocalDateTime;
