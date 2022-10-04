@@ -10,5 +10,6 @@ import java.util.List;
 
 public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> {
     List<ItemRequest> findAllByUser(User user);
+
     Page<ItemRequest> findAllByUserNot(User user, Pageable pageable);
 }
