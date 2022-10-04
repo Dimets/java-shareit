@@ -29,7 +29,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserMapper userMapper;
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
-    private final ItemRequestRepositoryCustom itemRequestRepositoryCustom;
 
     @Override
     @Transactional

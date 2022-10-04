@@ -64,4 +64,15 @@ public class BookingExtDtoTest {
         assertThat(result).extractingJsonPathStringValue("$.end")
                 .isEqualTo(bookingExtDto.getEnd().toString());
     }
+
+    @Test
+    void compareTo() {
+        BookingExtDto bookingExtDto = new BookingExtDto();
+        bookingExtDto.setStart(LocalDateTime.now().minusDays(3));
+
+        BookingExtDto otherBookingExtDto = new BookingExtDto();
+        otherBookingExtDto.setStart(LocalDateTime.now());
+
+        assertThat(bookingExtDto.compareTo(otherBookingExtDto)).isEqualTo(1);
+    }
 }
