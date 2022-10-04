@@ -1,7 +1,6 @@
 package ru.practicum.shareit.requests.model;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.item.model.Item;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
