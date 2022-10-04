@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -14,6 +15,7 @@ import java.util.List;
 @Component
 public class ItemMapper {
     private final UserMapper userMapper;
+    @Lazy
     private final ItemRequestMapper itemRequestMapper;
 
     public ItemMapper(UserMapper userMapper, ItemRequestMapper itemRequestMapper) {

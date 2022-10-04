@@ -48,7 +48,11 @@ public class ItemServiceImplTest {
 
     UserDto userDto;
 
-    ItemRequestMapper itemRequestMapper = new ItemRequestMapper(new UserMapper());
+    @Autowired
+    UserMapper userMapper;
+
+    @Autowired
+    ItemRequestMapper itemRequestMapper;
 
     @Test
     @Sql({"/schema.sql"})

@@ -30,6 +30,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserMapper userMapper;
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
+    private final ItemRequestRepositoryCustom itemRequestRepositoryCustom;
 
     @Override
     @Transactional
@@ -68,27 +69,15 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> findAllOther(Long userId, Integer from, Integer size) throws EntityNotFoundException {
-        if (size != Integer.MAX_VALUE) {
+    public List<ItemRequestDto> findAllOther(Long userId, Integer from, Integer size)
+            throws EntityNotFoundException {
+        User user = userMapper.toUser(userService.findById(userId));
 
-            User user = userMapper.toUser(userService.findById(userId));
+        Sort newestFirst = Sort.by(Sort.Direction.DESC, "created");
 
-            Sort newestFirst = Sort.by(Sort.Direction.DESC, "created");
+        Pageable pageable = PageRequest.of(from / size, size, newestFirst);
 
-            Pageable pageable = PageRequest.of(from / size, size, newestFirst);
-
-            List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toItemRequestDto(itemRequestRepository
-                    .findAllByUserNot(user, pageable).stream().collect(Collectors.toList()));
-
-            for (ItemRequestDto itemRequestDto : itemRequestDtos) {
-                itemRequestDto.setItems(itemMapper.toItemDto(itemRepository.findAllByItemRequest(
-                        itemRequestMapper.toItemRequest(itemRequestDto, userMapper.toUserDto(user)))));
-            }
-
-            return itemRequestDtos;
-        } else {
-            return new ArrayList<>();
-        }
+        return itemRequestMapper.toItemRequestDto(itemRequestRepository.findAllByUserNot(user, pageable)
+                .stream().collect(Collectors.toList()));
     }
-
 }

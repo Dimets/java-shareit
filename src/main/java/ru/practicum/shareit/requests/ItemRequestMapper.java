@@ -1,6 +1,10 @@
 package ru.practicum.shareit.requests;
 
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.UserMapper;
@@ -12,9 +16,12 @@ import java.util.List;
 @Component
 public class ItemRequestMapper {
     private final UserMapper userMapper;
+    private final ItemMapper itemMapper;
 
-    public ItemRequestMapper(UserMapper userMapper) {
+    @Autowired
+    public ItemRequestMapper(UserMapper userMapper, @Lazy ItemMapper itemMapper) {
         this.userMapper = userMapper;
+        this.itemMapper = itemMapper;
     }
 
     public ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
@@ -24,6 +31,7 @@ public class ItemRequestMapper {
         itemRequestDto.setDescription(itemRequest.getDescription());
         itemRequestDto.setCreated(itemRequest.getCreated());
         itemRequestDto.setRequesterId(itemRequest.getUser().getId());
+        itemRequestDto.setItems(itemRequest.getItems() != null ? itemMapper.toItemDto(itemRequest.getItems()) : null);
 
         return itemRequestDto;
     }

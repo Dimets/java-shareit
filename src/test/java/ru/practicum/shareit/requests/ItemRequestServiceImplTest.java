@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
@@ -53,6 +54,7 @@ public class ItemRequestServiceImplTest {
     @Test
     @Sql({"/schema.sql"})
     @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Transactional
     void findAll() throws Exception {
         userDto = userService.create(new UserDto(null, "user name", "user@email"));
 
@@ -75,6 +77,7 @@ public class ItemRequestServiceImplTest {
     @Test
     @Sql({"/schema.sql"})
     @Sql(scripts = "/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Transactional
     void findAllOther() throws Exception {
         userDto = userService.create(new UserDto(null, "user name", "user@email"));
 
