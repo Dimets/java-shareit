@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item;
 
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -14,5 +14,7 @@ public class ItemResponseMapper {
         return new ItemResponseDto(itemDto.getId(), itemDto.getName(), itemDto.getDescription(),
                 itemDto.getAvailable(), lastBookingDto, nextBookingDto, commentDtoList);
     }
+
+
 
 }

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingExtDto;
@@ -9,11 +10,15 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
 
+import javax.validation.constraints.Min;
 import java.util.List;
+
+import static ru.practicum.shareit.util.ShareItConstants.DEFAULT_PAGE_SIZE;
 
 @RestController
 @RequestMapping(path = "/bookings")
 @Slf4j
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
@@ -49,18 +54,24 @@ public class BookingController {
     @GetMapping
     public List<BookingExtDto> getAllByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @RequestParam(required = false, defaultValue = "ALL",
-                                                      value = "state") String state)
+                                                      value = "state") String state,
+                                              @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                              @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
-        log.info("GET /bookings bookerId={} state={}", userId, state);
-        return bookingService.findAllByBooker(userId, state);
+
+        log.info("GET /bookings?from={}&size={} bookerId={} state={}", from, size, userId, state);
+        return bookingService.findAllByBooker(userId, state, from, size);
     }
+
 
     @GetMapping("/owner")
     public List<BookingExtDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @RequestParam(required = false, defaultValue = "ALL",
-                                                     value = "state") String state)
+                                                     value = "state") String state,
+                                             @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
-        log.info("GET /bookings/owner ownerId={} state={}", userId, state);
-        return bookingService.findAllByOwner(userId, state);
+        log.info("GET /bookings/owner?from={}&size={} ownerId={} state={}", from, size, userId, state);
+        return bookingService.findAllByOwner(userId, state, from, size);
     }
 }

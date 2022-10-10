@@ -27,6 +27,8 @@ public class ItemDto implements Comparable<ItemDto> {
 
     private Long owner;
 
+    private Long requestId;
+
     @Override
     public int compareTo(ItemDto o) {
         if (this.getId() < o.getId()) {

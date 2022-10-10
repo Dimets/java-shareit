@@ -1,9 +1,11 @@
 package ru.practicum.shareit.item;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -13,7 +15,9 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemResponseMapper;
+import ru.practicum.shareit.requests.ItemRequestService;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
+import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -26,6 +30,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
@@ -34,23 +39,18 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final CommentMapper commentMapper;
     private final UserMapper userMapper;
-
-    public ItemServiceImpl(ItemRepository itemRepository, UserService userService, BookingService bookingService,
-                           CommentRepository commentRepository, ItemMapper itemMapper, CommentMapper commentMapper,
-                           UserMapper userMapper) {
-        this.itemRepository = itemRepository;
-        this.userService = userService;
-        this.bookingService = bookingService;
-        this.commentRepository = commentRepository;
-        this.itemMapper = itemMapper;
-        this.commentMapper = commentMapper;
-        this.userMapper = userMapper;
-    }
+    private final ItemRequestService itemRequestService;
 
     @Override
     @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) throws EntityNotFoundException {
         UserDto userDto = userService.findById(userId);
+
+        if (itemDto.getRequestId() != null) {
+            ItemRequestDto itemRequestDto = itemRequestService.findById(itemDto.getRequestId());
+            return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, userDto, itemRequestDto)));
+        }
+
         return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, userDto)));
     }
 
@@ -58,9 +58,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto update(Long userId, ItemDto itemDto) throws EntityNotFoundException, UsersDoNotMatchException {
         UserDto userDto = userService.findById(userId);
-
-        System.out.println("userId=" + userId);
-        System.out.println("owner=" + itemRepository.findById(itemDto.getId()).get().getOwner());
 
         if (!userId.equals(itemRepository.findById(itemDto.getId()).get().getOwner().getId())) {
             throw new UsersDoNotMatchException("Изменения доступны только для владельца вещи");
@@ -100,15 +97,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponseDto> findByUser(Long userId) throws EntityNotFoundException {
+    public List<ItemResponseDto> findByUser(Long userId, Integer from, Integer size) throws EntityNotFoundException {
         User user = userMapper.toUser(userService.findById(userId));
+
+        Pageable pageable = PageRequest.of(from / size, size);
 
         List<ItemResponseDto> itemResponseDtos = new ArrayList<>();
         BookingUserDto lastBooking;
         BookingUserDto nextBooking;
         List<CommentDto> commentDtoList;
 
-        List<ItemDto> itemDtoList = itemMapper.toItemDto(itemRepository.findAllByOwner(user));
+        List<ItemDto> itemDtoList = itemMapper.toItemDto(itemRepository.findAllByOwner(user, pageable));
 
         for (ItemDto itemDto : itemDtoList) {
             lastBooking = bookingService.findLastByItem(itemDto.getId());
@@ -123,9 +122,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findByCriteria(String text) {
+    public List<ItemDto> findByCriteria(String text, Integer from, Integer size) {
         if (text.length() > 0) {
-            return itemMapper.toItemDto(itemRepository.findItemsByCriteria(text.toLowerCase()));
+            Pageable pageable = PageRequest.of(from / size, size);
+            return itemMapper.toItemDto(itemRepository.findItemsByCriteria(text.toLowerCase(), pageable));
         } else {
             return new ArrayList<>();
         }
@@ -136,8 +136,8 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto create(Long userId, Long itemId, CommentDto commentDto)
             throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException {
 
-        if (bookingService.findAllByBooker(userId, BookingStatus.CURRENT.toString()).size() > 0 ||
-                bookingService.findAllByBooker(userId, BookingStatus.PAST.toString()).size()  > 0) {
+        if (bookingService.isExistsCurrentByBooker(userId) ||
+                bookingService.isExistsPastByBooker(userId)) {
             UserDto userDto = userService.findById(userId);
             Item item = itemRepository.findById(itemId).get();
             return commentMapper.toCommentDto(commentRepository.save(commentMapper.toComment(commentDto,
@@ -146,5 +146,10 @@ public class ItemServiceImpl implements ItemService {
             throw new CommentValidationException("Оставить комментарий к вещи можно только," +
                     " если пользователь ее бронировал");
         }
+    }
+
+    @Override
+    public List<ItemDto> findByRequest(ItemRequest itemRequest) {
+        return itemMapper.toItemDto(itemRepository.findAllByItemRequest(itemRequest));
     }
 }

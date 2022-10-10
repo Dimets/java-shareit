@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingExtDto;
@@ -23,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -118,12 +122,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingExtDto> findAllByBooker(Long userId, String state)
+    public List<BookingExtDto> findAllByBooker(Long userId, String state, Integer from, Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
-
-        User user = userMapper.toUser(userService.findById(userId));
-
-        List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
         BookingStatus status;
 
         try {
@@ -132,31 +132,44 @@ public class BookingServiceImpl implements BookingService {
             throw new UnsupportedStatusException("Unknown state: " + state);
         }
 
+        User user = userMapper.toUser(userService.findById(userId));
+
+        Sort newestFirst = Sort.by(Sort.Direction.DESC, "start");
+
+        Pageable pageable = PageRequest.of(from / size, size, newestFirst);
+
+
+        List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
+
         switch (status) {
             case ALL :
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
-                        bookingRepository.findAllByBooker(user));
+                        bookingRepository.findAllByBooker(user, pageable).stream().collect(Collectors.toList()));
                 break;
             case CURRENT:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
                         bookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfter(user, LocalDateTime.now(),
-                                LocalDateTime.now()));
+                                LocalDateTime.now(), pageable).stream().collect(Collectors.toList()));
                 break;
             case PAST:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
-                        bookingRepository.findAllByBookerAndEndIsBefore(user, LocalDateTime.now()));
+                        bookingRepository.findAllByBookerAndEndIsBefore(user, LocalDateTime.now(), pageable)
+                                .stream().collect(Collectors.toList()));
                 break;
             case FUTURE:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
-                        bookingRepository.findAllByBookerAndStartIsAfter(user, LocalDateTime.now()));
+                        bookingRepository.findAllByBookerAndStartIsAfter(user, LocalDateTime.now(), pageable)
+                                .stream().collect(Collectors.toList()));
                 break;
             case WAITING:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
-                        bookingRepository.findAllByBookerAndStatus(user, BookingStatus.WAITING));
+                        bookingRepository.findAllByBookerAndStatus(user, BookingStatus.WAITING, pageable)
+                                .stream().collect(Collectors.toList()));
                 break;
             case REJECTED:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(
-                        bookingRepository.findAllByBookerAndStatus(user, BookingStatus.REJECTED));
+                        bookingRepository.findAllByBookerAndStatus(user, BookingStatus.REJECTED, pageable)
+                                .stream().collect(Collectors.toList()));
                 break;
         }
 
@@ -165,10 +178,25 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingExtDto> findAllByOwner(Long userId, String state)
+    public Boolean isExistsCurrentByBooker(Long userId) {
+        return bookingRepository.existsByBookerIdAndStartIsBeforeAndEndIsAfter(userId,
+                LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    @Override
+    public Boolean isExistsPastByBooker(Long userId) {
+        return bookingRepository.existsByBookerIdAndEndIsBefore(userId, LocalDateTime.now());
+    }
+
+    @Override
+    public List<BookingExtDto> findAllByOwner(Long userId, String state, Integer from, Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
 
         User user = userMapper.toUser(userService.findById(userId));
+
+        Sort newestFirst = Sort.by(Sort.Direction.DESC, "start");
+
+        Pageable pageable = PageRequest.of(from / size, size, newestFirst);
 
         List<BookingExtDto> bookingExtDtoList = new ArrayList<>();
         BookingStatus status;
@@ -182,28 +210,32 @@ public class BookingServiceImpl implements BookingService {
         switch (status) {
             case ALL:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
-                        .findAllByItemOwner(user));
+                        .findAllByItemOwner(user, pageable).stream().collect(Collectors.toList()));
                 break;
             case CURRENT:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
                         .findAllByItemOwnerAndStartIsBeforeAndEndIsAfter(user, LocalDateTime.now(),
-                                LocalDateTime.now()));
+                                LocalDateTime.now(), pageable).stream().collect(Collectors.toList()));
                 break;
             case PAST:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
-                        .findAllByItemOwnerAndEndIsBefore(user, LocalDateTime.now()));
+                        .findAllByItemOwnerAndEndIsBefore(user, LocalDateTime.now(), pageable)
+                        .stream().collect(Collectors.toList()));
                 break;
             case FUTURE:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
-                        .findAllByItemOwnerAndStartIsAfter(user, LocalDateTime.now()));
+                        .findAllByItemOwnerAndStartIsAfter(user, LocalDateTime.now(), pageable)
+                        .stream().collect(Collectors.toList()));
                 break;
             case WAITING:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
-                        .findAllByItemOwnerAndStatus(user, BookingStatus.WAITING));
+                        .findAllByItemOwnerAndStatus(user, BookingStatus.WAITING, pageable)
+                        .stream().collect(Collectors.toList()));
                 break;
             case REJECTED:
                 bookingExtDtoList = bookingExtMapper.toBookingExtMapper(bookingRepository
-                        .findAllByItemOwnerAndStatus(user, BookingStatus.REJECTED));
+                        .findAllByItemOwnerAndStatus(user, BookingStatus.REJECTED, pageable)
+                        .stream().collect(Collectors.toList()));
                 break;
             default:
                 throw new UnsupportedStatusException("Unknown state: " + state);

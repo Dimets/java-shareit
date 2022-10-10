@@ -8,9 +8,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class BookingMapper {
     private final ItemMapper itemMapper;
@@ -24,14 +21,6 @@ public class BookingMapper {
     public BookingDto toBookingDto(Booking booking) {
         return new BookingDto(booking.getId(), booking.getStart(), booking.getEnd(), booking.getItem().getId(),
                 booking.getBooker().getId(), booking.getStatus());
-    }
-
-    public List<BookingDto> toBookingDto(List<Booking> bookings) {
-        List<BookingDto> bookingDtoList = new ArrayList<>();
-        for (Booking booking : bookings) {
-            bookingDtoList.add(toBookingDto(booking));
-        }
-        return bookingDtoList;
     }
 
     public Booking toBooking(BookingDto bookingDto, UserDto userDto, ItemDto itemDto) {

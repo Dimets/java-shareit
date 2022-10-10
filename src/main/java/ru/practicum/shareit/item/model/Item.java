@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -8,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "items", schema = "public")
 @Data
+@NoArgsConstructor
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +27,17 @@ public class Item {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column(name = "request_id")
-    private Long request;
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    private ItemRequest itemRequest;
+
+    public Item(String name, String description, Boolean available, User owner, ItemRequest itemRequest) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.owner = owner;
+        this.itemRequest = itemRequest;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -11,6 +12,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/items")
 @Slf4j
+@Validated
 public class ItemController {
     private final ItemService itemService;
 
@@ -43,16 +46,19 @@ public class ItemController {
     }
 
     @GetMapping
-    List<ItemResponseDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId) throws EntityNotFoundException {
-        log.info("GET /items/ by userId={}", userId);
-        return itemService.findByUser(userId);
+    List<ItemResponseDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                    @RequestParam(defaultValue = "20") @Min(1) Integer size)
+            throws EntityNotFoundException {
+        log.info("GET /items/?from={}&size={} by userId={}", from, size, userId);
+        return itemService.findByUser(userId, from, size);
     }
 
     @GetMapping("/search")
-    List<ItemDto> search(@RequestParam String text) {
-        log.info("GET /search");
-        log.debug("GET /search?text={}", text);
-        return itemService.findByCriteria(text);
+    List<ItemDto> search(@RequestParam String text, @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                         @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+        log.info("GET /search?text={}&from={}&size={}", text, from, size);
+        return itemService.findByCriteria(text, from, size);
     }
 
     @PatchMapping("/{itemId}")
