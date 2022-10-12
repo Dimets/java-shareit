@@ -6,13 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.requests.dto.ItemRequestRequestDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Controller
 @RequestMapping(path = "/requests")
