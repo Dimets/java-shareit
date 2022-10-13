@@ -15,7 +15,6 @@ import java.util.List;
 public class ItemRequestDto {
     private Long id;
 
-    @NotNull(message = "Текст запроса обязателен!")
     private String description;
 
     private LocalDateTime created;

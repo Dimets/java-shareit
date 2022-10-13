@@ -21,7 +21,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/items")
 @Slf4j
-@Validated
 public class ItemServerController {
     private final ItemService itemService;
 
@@ -30,7 +29,7 @@ public class ItemServerController {
     }
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody ItemDto itemDto)
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody ItemDto itemDto)
             throws EntityNotFoundException {
         log.info("POST /items userId={}", userId);
         log.debug("POST /items userId={}  itemDto={}", userId, itemDto);
@@ -41,22 +40,21 @@ public class ItemServerController {
     public ItemResponseDto findItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId)
             throws EntityNotFoundException {
         log.info("GET /items/{} userId={}", itemId, userId);
-        ItemResponseDto itemResponseDto = itemService.findById(userId, itemId);
-        return itemResponseDto;
+        return itemService.findById(userId, itemId);
     }
 
     @GetMapping
     List<ItemResponseDto> findItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                    @RequestParam(defaultValue = "20") @Min(1) Integer size)
+                                    @RequestParam Integer from,
+                                    @RequestParam Integer size)
             throws EntityNotFoundException {
         log.info("GET /items/?from={}&size={} by userId={}", from, size, userId);
         return itemService.findByUser(userId, from, size);
     }
 
     @GetMapping("/search")
-    List<ItemDto> search(@RequestParam String text, @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                         @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+    List<ItemDto> search(@RequestParam String text, @RequestParam Integer from,
+                         @RequestParam Integer size) {
         log.info("GET /search?text={}&from={}&size={}", text, from, size);
         return itemService.findByCriteria(text, from, size);
     }
@@ -88,10 +86,10 @@ public class ItemServerController {
 
     @PostMapping("/{itemId}/comment")
     CommentDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId,
-                      @Valid @RequestBody CommentDto commentDto)
+                      @RequestBody CommentDto commentDto)
             throws EntityNotFoundException, UnsupportedStatusException, CommentValidationException {
-            log.info("POST /items/{itemId}/comment userId={}", itemId, userId);
-            log.debug("POST /items/{itemId} userId={} commentDto={}", itemId, userId, commentDto);
+            log.info("POST /items/{}/comment userId={}", itemId, userId);
+            log.debug("POST /items/{} userId={} commentDto={}", itemId, userId, commentDto);
             commentDto.setCreate(LocalDateTime.now());
         return itemService.create(userId, itemId, commentDto);
     }

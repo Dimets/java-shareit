@@ -39,7 +39,7 @@ public class BookingServerController {
                                  @PathVariable("bookingId") Long bookingId,
                                  @RequestParam(value = "approved") Boolean status)
             throws EntityNotFoundException, UsersDoNotMatchException, BookingValidationException {
-        log.info("PATCH /bookings/{bookingId} userId={} approved={}", bookingId, userId, status);
+        log.info("PATCH /bookings/{} userId={} approved={}", bookingId, userId, status);
         return bookingService.approve(bookingId, userId, status);
     }
 
@@ -47,16 +47,15 @@ public class BookingServerController {
     public BookingExtDto getById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable("bookingId") Long bookingId)
             throws EntityNotFoundException {
-        log.info("GET /bookings/{bookingId}", bookingId);
+        log.info("GET /bookings/{}", bookingId);
         return bookingService.findById(userId, bookingId);
     }
 
     @GetMapping
     public List<BookingExtDto> getAllByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                              @RequestParam(required = false, defaultValue = "ALL",
-                                                      value = "state") String state,
-                                              @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                              @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer size)
+                                              @RequestParam String state,
+                                              @RequestParam Integer from,
+                                              @RequestParam Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
 
         log.info("GET /bookings?from={}&size={} bookerId={} state={}", from, size, userId, state);
@@ -66,10 +65,9 @@ public class BookingServerController {
 
     @GetMapping("/owner")
     public List<BookingExtDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @RequestParam(required = false, defaultValue = "ALL",
-                                                     value = "state") String state,
-                                             @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer size)
+                                             @RequestParam String state,
+                                             @RequestParam Integer from,
+                                             @RequestParam Integer size)
             throws EntityNotFoundException, UnsupportedStatusException {
         log.info("GET /bookings/owner?from={}&size={} ownerId={} state={}", from, size, userId, state);
         return bookingService.findAllByOwner(userId, state, from, size);

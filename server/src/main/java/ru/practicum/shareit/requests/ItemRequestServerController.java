@@ -17,7 +17,6 @@ import static ru.practicum.shareit.util.ShareItConstants.DEFAULT_PAGE_SIZE;
 
 @RestController
 @RequestMapping(path = "/requests")
-@Validated
 @Slf4j
 public class ItemRequestServerController {
     private final ItemRequestService itemRequestService;
@@ -30,7 +29,7 @@ public class ItemRequestServerController {
 
     @PostMapping
     public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                 @Valid @RequestBody ItemRequestDto itemRequestDto) throws EntityNotFoundException {
+                                 @RequestBody ItemRequestDto itemRequestDto) throws EntityNotFoundException {
         log.info("POST /requests userId={}", userId);
         log.debug("POST /requests userId={}  itemRequestDto={}", userId, itemRequestDto);
 
@@ -58,8 +57,8 @@ public class ItemRequestServerController {
 
     @GetMapping("/all")
     public List<ItemRequestDto> findAllItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                    @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                                    @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(1) Integer size)
+                                                    @RequestParam Integer from,
+                                                    @RequestParam Integer size)
             throws EntityNotFoundException {
         log.info("GET /requests/all?from={}&size={} userId={}", from, size, userId);
 

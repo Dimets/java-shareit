@@ -21,7 +21,7 @@ public class UserServerController {
     }
 
     @PostMapping
-    public UserDto create(@Valid @RequestBody UserDto userDto) throws EmailFormatException {
+    public UserDto create(@RequestBody UserDto userDto) throws EmailFormatException {
         log.info("POST /users");
         log.info("POST /users {}", userDto);
         return userService.create(userDto);

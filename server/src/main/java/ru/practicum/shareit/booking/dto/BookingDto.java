@@ -12,13 +12,10 @@ import java.time.LocalDateTime;
 public class BookingDto {
     private Long id;
 
-    @NotNull(message = "Начало периода бронирования указывать обязательно!")
     private LocalDateTime start;
 
-    @NotNull(message = "Конец периода бронирования указывать обязательно!")
     private LocalDateTime end;
 
-    @NotNull(message = "Id вещи указывать обязательно!")
     private Long itemId;
 
     private Long booker;

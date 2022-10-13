@@ -15,14 +15,10 @@ import javax.validation.constraints.NotNull;
 public class ItemDto implements Comparable<ItemDto> {
     private Long id;
 
-    @NotNull(message = "Название вещи обязательно!")
-    @NotBlank(message = "Название вещи не может быть пустым!")
     private String name;
 
-    @NotNull(message = "Описание вещи обязательно!")
     private String description;
 
-    @NotNull
     private Boolean available;
 
     private Long owner;

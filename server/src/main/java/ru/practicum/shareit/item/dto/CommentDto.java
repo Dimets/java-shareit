@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 public class CommentDto {
     private Long id;
 
-    @NotNull(message = "Текст комментария обязателен!")
-    @NotBlank(message = "Текст комментария не может быть пустым!")
     private String text;
 
     private Long itemId;

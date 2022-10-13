@@ -14,7 +14,8 @@ import javax.validation.constraints.NotNull;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
     private Long id;
+
     private String name;
-    @NotNull(message = "Email обязателен")
+
     private String email;
 }
