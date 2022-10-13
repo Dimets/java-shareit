@@ -39,8 +39,12 @@ public class ItemClient extends BaseClient {
         return post("/" + itemId + "/comment", userId, commentRequestDto);
     }
 
-    public ResponseEntity<Object> getItems(long userId) {
-        return get("", userId);
+    public ResponseEntity<Object> getItems(long userId, Integer from, Integer size) {
+        Map<String, Object> parameters = Map.of(
+                "from", from,
+                "size", size
+        );
+        return get("/?from={from}&size={size}", userId, parameters);
     }
 
     public ResponseEntity<Object> getItem(long itemId, long userId) {

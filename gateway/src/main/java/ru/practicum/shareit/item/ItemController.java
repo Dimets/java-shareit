@@ -31,9 +31,11 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-        log.info("GET /items userId={}", userId);
-        return itemClient.getItems(userId);
+    public ResponseEntity<Object> getItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                           @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                           @RequestParam(defaultValue = "20") @Min(1) Integer size) {
+        log.info("GET /items?from={}&size={} userId={}", from, size, userId);
+        return itemClient.getItems(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
