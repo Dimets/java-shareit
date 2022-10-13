@@ -282,7 +282,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingValidationException("Дата окончания бронирования не может быть в прошлом");
         }
 
-        if (bookingDto.getStart().isAfter(bookingDto.getEnd()) || bookingDto.getStart().isEqual(bookingDto.getEnd())) {
+        if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
             throw new BookingValidationException("Дата начала бронирования не может быть после даты окончания");
         }
 
