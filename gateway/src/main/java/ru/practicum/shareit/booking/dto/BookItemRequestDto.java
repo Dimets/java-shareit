@@ -17,4 +17,13 @@ public class BookItemRequestDto {
 	private LocalDateTime start;
 	@Future
 	private LocalDateTime end;
+
+	@Override
+	public String toString() {
+		return "BookItemRequestDto{" +
+				"itemId=" + itemId +
+				", start=" + start +
+				", end=" + end +
+				'}';
+	}
 }

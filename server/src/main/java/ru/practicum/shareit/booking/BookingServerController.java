@@ -27,7 +27,7 @@ public class BookingServerController {
     public BookingDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody BookingDto bookingDto)
             throws EntityNotFoundException, BookingValidationException {
         log.info("POST /bookings userId={}", userId);
-        log.debug("POST /bookings userId={} bookingDto={}", userId, bookingDto);
+        log.info("POST /bookings userId={} bookingDto={}", userId, bookingDto);
         return bookingService.create(userId, bookingDto);
     }
 
