@@ -24,11 +24,11 @@ public class BookingServerController {
     }
 
     @PostMapping
-    public BookingDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody BookingDto bookingDto)
+    public BookingExtDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody BookingDto bookingDto)
             throws EntityNotFoundException, BookingValidationException {
         log.info("POST /bookings userId={}", userId);
         log.info("POST /bookings userId={} bookingDto={}", userId, bookingDto);
-        return bookingService.create(userId, bookingDto);
+        return bookingService.findById(userId, bookingService.create(userId, bookingDto).getId());
     }
 
     @PatchMapping("/{bookingId}")
