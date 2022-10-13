@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.CommentValidationException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -11,8 +10,6 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;

@@ -10,10 +10,7 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.UsersDoNotMatchException;
 
-import javax.validation.constraints.Min;
 import java.util.List;
-
-import static ru.practicum.shareit.util.ShareItConstants.DEFAULT_PAGE_SIZE;
 
 @RestController
 @RequestMapping(path = "/bookings")

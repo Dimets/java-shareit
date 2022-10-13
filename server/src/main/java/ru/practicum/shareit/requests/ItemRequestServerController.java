@@ -1,19 +1,14 @@
 package ru.practicum.shareit.requests;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static ru.practicum.shareit.util.ShareItConstants.DEFAULT_PAGE_SIZE;
 
 @RestController
 @RequestMapping(path = "/requests")

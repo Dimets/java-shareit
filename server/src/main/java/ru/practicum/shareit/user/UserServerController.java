@@ -6,7 +6,6 @@ import ru.practicum.shareit.exception.EmailFormatException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
